@@ -1,9 +1,10 @@
-const API_KEY = "0bfa8e0db1de8e824bd0d70046c726e4";
+const API_KEY = "0bc8bd2db453d7413d1c2844ec617b61";
 const BASE_PATH = "https://api.themoviedb.org/3";
 
-interface Movie {
+export interface Movie {
   id: number;
   backdrop_path: string;
+  genre_ids: number[];
   poster_path: string;
   title: string;
   original_title: string;
@@ -11,7 +12,7 @@ interface Movie {
   vote_average: number;
   vote_count: number;
   release_date: string;
-  adults: boolean;
+  adult: boolean;
 }
 
 export interface GetMoviesResult {
@@ -25,26 +26,57 @@ export interface GetMoviesResult {
   total_results: number;
 }
 
-export const getMovies = () => {
+//현재 상영 중인 영화 목록
+export const getMovies = async (): Promise<GetMoviesResult> => {
+  const fetchPage = async (page: number) => {
+    const response = await fetch(
+      `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&page=${page}`
+    );
+    return response.json();
+  };
+
+  let allResults: Movie[] = [];
+  const totalPages = 5;
+
+  for (let i = 1; i <= totalPages; i++) {
+    const pageData = await fetchPage(i);
+    allResults = [...allResults, ...pageData.results];
+  }
+
+  return { results: allResults } as GetMoviesResult;
+};
+
+//키워드
+export const searchContents = (keyword: string | null) => {
   return fetch(
-    `${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko-kr`
+    `${BASE_PATH}/search/movie?api_key=${API_KEY}&query=${keyword}`
   ).then((response) => response.json());
 };
 
-export const searchContents = (keyword: string) => {
-  return fetch(
-    `${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}&language=ko-kr`
-  ).then((response) => response.json());
-};
-
-// export const searchContents = (keyword: string) => {
-//   return fetch(
-//     `${BASE_PATH}/search/multi?api_key=${API_KEY}&language=ko-kr&query=${keyword}`
-//   ).then((response) => response.json());
-// };
-
+//영화 장르
 export const searchGeneres = () => {
   return fetch(`${BASE_PATH}/genre/movie/list?api_key=${API_KEY}`).then(
     (response) => response.json()
   );
+};
+
+//영화 리뷰
+export const getReviews = (movieId: number) => {
+  return fetch(`${BASE_PATH}/movie/${movieId}/reviews?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+};
+
+//영화 관련 비디오 클립
+export const getVideos = (movieId: number) => {
+  return fetch(`${BASE_PATH}/movie/${movieId}/videos?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+};
+
+//영화 연령 등급
+export const getCertification = (movieId: number) => {
+  return fetch(
+    `${BASE_PATH}/movie/${movieId}/release_dates?api_key=${API_KEY}`
+  ).then((response) => response.json());
 };

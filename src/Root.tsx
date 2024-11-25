@@ -4,25 +4,35 @@ import theme from "./theme";
 import Header from "./components/Header";
 
 const GlobalStyle = createGlobalStyle`
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-ul,
-li {
-  list-style: none;
-}
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+  }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
 
-body {
-  font-family: "Nanum Gothic", serif;
-}
+
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  ul, li {
+    list-style: none;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  body {
+    font-family: 'Pretendard-Regular';
+  }
 `;
 
 const App = () => {
