@@ -86,6 +86,27 @@ const Box = styled.div`
   align-items: center;
 `;
 
+const ReviewTitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  h3 {
+    margin-top: 8px;
+  }
+`;
+
+const ReviewBox = styled.div`
+  height: 200px;
+  padding: 10px 14px;
+  background-color: ${({ theme }) => theme.black.veryDark};
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+`;
 const BoxMotion = styled(motion.div)``;
 
 const Review = styled(motion.div)`
@@ -113,13 +134,6 @@ interface ReviewResult {
   url: string;
 }
 
-interface ReviewType {
-  id: number;
-  page: number;
-  results: ReviewResult[];
-  total_pages: number;
-  total_results: number;
-}
 const Detail = () => {
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
@@ -158,14 +172,21 @@ const Detail = () => {
       return await getReviews(nowMovieId);
     },
   });
+
+  //리뷰  슬라이드
   const toggleLeaving = () => setLeaving((prev) => !prev);
+
   const reviewIndex = () => {
     if (reviews) {
       setLeaving(true);
-      const maxIndex = Math.ceil(reviews / offset) - 1;
+      const totalReviews = reviews.results.length;
+      const maxIndex = Math.ceil(totalReviews / offset) - 1;
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
     }
   };
+
+  console.log(reviews);
+
   const rowVariants = {
     hidden: {
       x: window.innerWidth + 10,
@@ -175,14 +196,6 @@ const Detail = () => {
     },
     exit: {
       x: -window.innerWidth - 10,
-    },
-  };
-  const boxVariants = {
-    normal: { scale: 1 },
-    hover: {
-      scale: 1.3,
-      y: -50,
-      transition: { delay: 0.5, duration: 0.3, type: "tween" },
     },
   };
 
@@ -234,8 +247,11 @@ const Detail = () => {
                   </GenreItem>
                 </Wrap>
                 <Wrap>
-                  <SubTitle>리뷰</SubTitle>
-                  <Box style={{ height: "200px" }}>
+                  <ReviewTitleWrap>
+                    <SubTitle>리뷰</SubTitle>
+                    <Box onClick={reviewIndex}>더보기</Box>
+                  </ReviewTitleWrap>
+                  <ReviewBox>
                     <AnimatePresence
                       initial={false}
                       onExitComplete={toggleLeaving}
@@ -251,18 +267,13 @@ const Detail = () => {
                         {reviews?.results
                           .slice(index * offset, index * offset + offset)
                           .map((review: ReviewResult) => (
-                            <BoxMotion
-                              key={review.id}
-                              variants={boxVariants}
-                              initial="normal"
-                              whileHover="hover"
-                            >
+                            <BoxMotion key={review.id}>
                               <SubTitle>{review.author}</SubTitle>
                             </BoxMotion>
                           ))}
                       </Review>
                     </AnimatePresence>
-                  </Box>
+                  </ReviewBox>
                 </Wrap>
               </RightWrap>
             </Right>
