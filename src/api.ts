@@ -80,3 +80,10 @@ export const getCertification = (movieId: number) => {
     `${BASE_PATH}/movie/${movieId}/release_dates?api_key=${API_KEY}`
   ).then((response) => response.json());
 };
+
+//영화 출연진
+export const getCredits = (movieId: number) => {
+  return fetch(`${BASE_PATH}/movie/${movieId}/credits?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+};

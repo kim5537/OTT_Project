@@ -4,6 +4,7 @@ import {
   GetMoviesResult,
   searchGeneres,
   getReviews,
+  getCredits,
 } from "../api";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import YouTube from "react-youtube";
 import styled from "styled-components";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { makeImagePath } from "../utils";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.black.veryDark};
@@ -21,7 +23,7 @@ const Container = styled.div`
 const Loader = styled.div``;
 
 const Inner = styled.div`
-  height: inherit;
+  height: 100%;
   width: 100%;
   max-width: 1900px;
   padding: 10px 20px;
@@ -32,9 +34,50 @@ const Inner = styled.div`
 `;
 const Left = styled.div`
   height: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `;
 
 const MovieWrap = styled.div``;
+
+const Crewrap = styled.div`
+  width: 100%;
+  height: 340px;
+  background-color: ${({ theme }) => theme.black.lighter};
+  border-radius: 16px;
+  padding: 40px 60px;
+`;
+
+const CrewList = styled.div`
+  font-size: 1.6rem;
+`;
+
+const CrewImgWrap = styled.div`
+  display: flex;
+  max-width: 1000px;
+  margin: 20px auto;
+  justify-content: space-between;
+  div {
+    width: 140px;
+    height: 140px;
+  }
+`;
+
+const CrewName = styled.h5`
+  margin-top: 6px;
+  font-size: 16px;
+  text-align: center;
+  color: ${({ theme }) => theme.white.darker};
+`;
+
+const CharacName = styled.div`
+  margin-top: 6px;
+  font-size: 12px;
+  text-align: center;
+  color: ${({ theme }) => theme.white.darker};
+  opacity: 0.6;
+`;
 
 const Right = styled.div`
   height: inherit;
@@ -44,7 +87,7 @@ const RightWrap = styled.div`
   position: sticky;
   top: 70px;
   background-color: ${(props) => props.theme.black.lighter};
-  height: 800px;
+  min-height: 800px;
   padding: 40px;
   border-radius: 16px;
   display: flex;
@@ -65,13 +108,15 @@ const SubTitle = styled.h3`
 `;
 const VoteAndAdult = styled.div`
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  /* align-items: center; */
+  gap: 10px;
 `;
-const Wrap = styled.div``;
+const Wrap = styled(motion.div)``;
+
 const GenreItem = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 2%;
 `;
 
 const Box = styled.div`
@@ -84,19 +129,20 @@ const Box = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 `;
 
 const ReviewTitleWrap = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   h3 {
     margin-top: 8px;
   }
 `;
 
 const ReviewBox = styled.div`
-  height: 200px;
+  height: 300px;
   padding: 10px 14px;
   background-color: ${({ theme }) => theme.black.veryDark};
   border-radius: 10px;
@@ -107,11 +153,34 @@ const ReviewBox = styled.div`
   position: relative;
   overflow: hidden;
 `;
-const BoxMotion = styled(motion.div)``;
 
 const Review = styled(motion.div)`
   position: absolute;
   width: 100%;
+  height: 300px;
+  width: 100%;
+  padding: 20px 10px 20px 20px;
+  /* text-overflow: clip; */
+`;
+
+const ReviewTitle = styled(motion.div)``;
+
+const ReviewDesc = styled.div`
+  color: ${({ theme }) => theme.white.darker};
+  opacity: 0.8;
+  height: 220px;
+  width: 100%;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
+  padding-right: 6px;
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.white.darker};
+    opacity: 0.8;
+    border-radius: 4px;
+  }
 `;
 
 interface GeneresItem {
@@ -134,15 +203,35 @@ interface ReviewResult {
   url: string;
 }
 
+interface castType {
+  adult: boolean;
+  gender: number;
+  id: number;
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  popularity: number;
+  profile_path: string;
+  cast_id: number;
+  character: string;
+  credit_id: string;
+  order: number;
+}
+
 const Detail = () => {
   const [leaving, setLeaving] = useState(false);
+  const [leavingCrew, setLeavingCrew] = useState(false);
   const [index, setIndex] = useState(0);
+  const [crewIndex, setCrewIndex] = useState(0);
+  const { movieId } = useParams<{ movieId: string }>();
+
   const offset = 1;
+  const offset2 = 5;
+
   const { data, isLoading } = useQuery<GetMoviesResult>({
     queryKey: ["nowMovie"],
     queryFn: getMovies,
   });
-  const { movieId } = useParams<{ movieId: string }>();
   //해당영화정보
   const nowMovie = data?.results.filter(
     (movie) => movie.id === Number(movieId)
@@ -172,8 +261,33 @@ const Detail = () => {
       return await getReviews(nowMovieId);
     },
   });
+  //영화 출연진
+  const { data: credits, isLoading: creditsLoding } = useQuery({
+    queryKey: ["credits", nowMovieId],
+    queryFn: async () => {
+      if (!nowMovieId) return { results: [] };
+      return await getCredits(nowMovieId);
+    },
+  });
+  console.log(credits);
+  //슬라이드
+  //출연진 슬라이드
+  const toggleCrew = () => setLeavingCrew((prev) => !prev);
 
-  //리뷰  슬라이드
+  // const crewIndexFn = (bt: string) => {
+  //   if (credits) {
+  //     //사용할 data 값 - 15명의 배우들
+  //     setLeavingCrew(true);
+  //     const castsLeng = credits.cast.slice(0, 15).length;
+  //     const maxIndex = Math.ceil(castsLeng.length / offset2) - 1;
+  //     if (bt === "right") {
+  //       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+  //     } else {
+  //       setIndex((prev) => (prev === maxIndex ? maxIndex : prev - 1));
+  //     }
+  //   }
+  // };
+  //리뷰 슬라이드
   const toggleLeaving = () => setLeaving((prev) => !prev);
 
   const reviewIndex = () => {
@@ -184,8 +298,6 @@ const Detail = () => {
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
     }
   };
-
-  console.log(reviews);
 
   const rowVariants = {
     hidden: {
@@ -198,8 +310,6 @@ const Detail = () => {
       x: -window.innerWidth - 10,
     },
   };
-
-  console.log(reviews);
   return (
     <Container>
       {isLoading ? (
@@ -218,6 +328,38 @@ const Detail = () => {
                   />
                 )}
               </MovieWrap>
+              <Crewrap>
+                <CrewList>
+                  <Wrap>
+                    <SubTitle>Cast</SubTitle>
+                  </Wrap>
+                  <CrewImgWrap>
+                    <AnimatePresence
+                      initial={false}
+                      onExitComplete={toggleCrew}
+                    >
+                      {credits?.cast
+                        .slice(0, 15)
+                        .slice(
+                          crewIndex * offset2,
+                          crewIndex * offset2 + offset2
+                        )
+                        .map((cast: castType) => (
+                          <Wrap>
+                            <Box>
+                              <img
+                                src={makeImagePath(cast.profile_path)}
+                                width={"140px"}
+                              />
+                            </Box>
+                            <CrewName>{cast.name}</CrewName>
+                            <CharacName>{cast.character}</CharacName>
+                          </Wrap>
+                        ))}
+                    </AnimatePresence>
+                  </CrewImgWrap>
+                </CrewList>
+              </Crewrap>
             </Left>
             <Right>
               <RightWrap>
@@ -225,7 +367,7 @@ const Detail = () => {
                 <VoteAndAdult>
                   <Wrap>
                     <SubTitle>평점</SubTitle>
-                    <Box>{nowMovie?.vote_average}</Box>
+                    <Box>{nowMovie ? nowMovie.vote_average.toFixed(1) : 0}</Box>
                   </Wrap>
                   <Wrap>
                     <SubTitle>나이</SubTitle>
@@ -236,7 +378,7 @@ const Detail = () => {
                   <SubTitle>장르</SubTitle>
                   <GenreItem>
                     {nowMovie?.genre_ids.map((genreId) => (
-                      <Box>
+                      <Box key={genreId}>
                         {
                           genres?.genres.find(
                             (item: GeneresItem) => item.id === genreId
@@ -249,7 +391,7 @@ const Detail = () => {
                 <Wrap>
                   <ReviewTitleWrap>
                     <SubTitle>리뷰</SubTitle>
-                    <Box onClick={reviewIndex}>더보기</Box>
+                    <Box onClick={reviewIndex}> {">"} </Box>
                   </ReviewTitleWrap>
                   <ReviewBox>
                     <AnimatePresence
@@ -264,13 +406,22 @@ const Detail = () => {
                         exit="exit"
                         transition={{ type: "tween", duration: 1 }}
                       >
-                        {reviews?.results
-                          .slice(index * offset, index * offset + offset)
-                          .map((review: ReviewResult) => (
-                            <BoxMotion key={review.id}>
-                              <SubTitle>{review.author}</SubTitle>
-                            </BoxMotion>
-                          ))}
+                        {reviews?.results.length === 0 ? (
+                          <Wrap>
+                            <ReviewDesc>리뷰가 없습니다</ReviewDesc>
+                          </Wrap>
+                        ) : (
+                          reviews?.results
+                            .slice(index * offset, index * offset + offset)
+                            .map((review: ReviewResult) => (
+                              <Wrap key={review.id}>
+                                <ReviewTitle>
+                                  <SubTitle>{review.author}</SubTitle>
+                                </ReviewTitle>
+                                <ReviewDesc>{review.content}</ReviewDesc>
+                              </Wrap>
+                            ))
+                        )}
                       </Review>
                     </AnimatePresence>
                   </ReviewBox>
