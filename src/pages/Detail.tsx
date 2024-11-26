@@ -53,6 +53,19 @@ const CrewList = styled.div`
   font-size: 1.6rem;
 `;
 
+const CrewTitleWrap = styled.div`
+  display: flex;
+`;
+
+const Arrow = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const CrewSlider = styled.div`
+  display: flex;
+`;
+
 const CrewImgWrap = styled.div`
   display: flex;
   max-width: 1000px;
@@ -274,19 +287,19 @@ const Detail = () => {
   //출연진 슬라이드
   const toggleCrew = () => setLeavingCrew((prev) => !prev);
 
-  // const crewIndexFn = (bt: string) => {
-  //   if (credits) {
-  //     //사용할 data 값 - 15명의 배우들
-  //     setLeavingCrew(true);
-  //     const castsLeng = credits.cast.slice(0, 15).length;
-  //     const maxIndex = Math.ceil(castsLeng.length / offset2) - 1;
-  //     if (bt === "right") {
-  //       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
-  //     } else {
-  //       setIndex((prev) => (prev === maxIndex ? maxIndex : prev - 1));
-  //     }
-  //   }
-  // };
+  const crewIndexFn = (bt: string) => {
+    if (credits) {
+      //사용할 data 값 - 15명의 배우들
+      setLeavingCrew(true);
+      const castsLeng = credits.cast.slice(0, 15).length;
+      const maxIndex = Math.ceil(castsLeng.length / offset2) - 1;
+      if (bt === "right") {
+        setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      } else {
+        setIndex((prev) => (prev === maxIndex ? maxIndex : prev - 1));
+      }
+    }
+  };
   //리뷰 슬라이드
   const toggleLeaving = () => setLeaving((prev) => !prev);
 
@@ -330,32 +343,38 @@ const Detail = () => {
               </MovieWrap>
               <Crewrap>
                 <CrewList>
-                  <Wrap>
+                  <CrewTitleWrap>
                     <SubTitle>Cast</SubTitle>
-                  </Wrap>
+                    <Arrow>
+                      <Box onClick={() => crewIndexFn("right")}>{"<"}</Box>
+                      <Box onClick={() => crewIndexFn("left")}>{">"}</Box>
+                    </Arrow>
+                  </CrewTitleWrap>
                   <CrewImgWrap>
                     <AnimatePresence
                       initial={false}
                       onExitComplete={toggleCrew}
                     >
-                      {credits?.cast
-                        .slice(0, 15)
-                        .slice(
-                          crewIndex * offset2,
-                          crewIndex * offset2 + offset2
-                        )
-                        .map((cast: castType) => (
-                          <Wrap>
-                            <Box>
-                              <img
-                                src={makeImagePath(cast.profile_path)}
-                                width={"140px"}
-                              />
-                            </Box>
-                            <CrewName>{cast.name}</CrewName>
-                            <CharacName>{cast.character}</CharacName>
-                          </Wrap>
-                        ))}
+                      <CrewSlider>
+                        {credits?.cast
+                          .slice(0, 15)
+                          .slice(
+                            crewIndex * offset2,
+                            crewIndex * offset2 + offset2
+                          )
+                          .map((cast: castType) => (
+                            <Wrap>
+                              <Box>
+                                <img
+                                  src={makeImagePath(cast.profile_path)}
+                                  width={"140px"}
+                                />
+                              </Box>
+                              <CrewName>{cast.name}</CrewName>
+                              <CharacName>{cast.character}</CharacName>
+                            </Wrap>
+                          ))}
+                      </CrewSlider>
                     </AnimatePresence>
                   </CrewImgWrap>
                 </CrewList>
