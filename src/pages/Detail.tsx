@@ -4,7 +4,6 @@ import {
   GetMoviesResult,
   searchGeneres,
   getReviews,
-  getCredits,
 } from "../api";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,12 +11,13 @@ import YouTube from "react-youtube";
 import styled from "styled-components";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { makeImagePath } from "../utils";
+import DtailCastSlide from "../components/DtailCastSlide";
+import RandomMovieSlide from "../components/RandomMovieSlide";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.black.veryDark};
   width: 100%;
-  height: 140vh;
+  height: 100%;
   padding: 0 60px;
 `;
 const Loader = styled.div``;
@@ -26,11 +26,10 @@ const Inner = styled.div`
   height: 100%;
   width: 100%;
   max-width: 1900px;
-  padding: 10px 20px;
+  padding: 60px 20px;
   display: grid;
   grid-template-columns: 3fr 1fr;
   gap: 20px;
-  margin: 60px auto;
 `;
 const Left = styled.div`
   height: inherit;
@@ -49,47 +48,12 @@ const Crewrap = styled.div`
   padding: 40px 60px;
 `;
 
-const CrewList = styled.div`
-  font-size: 1.6rem;
-`;
-
-const CrewTitleWrap = styled.div`
-  display: flex;
-`;
-
-const Arrow = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const CrewSlider = styled.div`
-  display: flex;
-`;
-
-const CrewImgWrap = styled.div`
-  display: flex;
-  max-width: 1000px;
-  margin: 20px auto;
-  justify-content: space-between;
-  div {
-    width: 140px;
-    height: 140px;
-  }
-`;
-
-const CrewName = styled.h5`
-  margin-top: 6px;
-  font-size: 16px;
-  text-align: center;
-  color: ${({ theme }) => theme.white.darker};
-`;
-
-const CharacName = styled.div`
-  margin-top: 6px;
-  font-size: 12px;
-  text-align: center;
-  color: ${({ theme }) => theme.white.darker};
-  opacity: 0.6;
+const RandomMoviewrap = styled.div`
+  width: 100%;
+  height: 460px;
+  background-color: ${({ theme }) => theme.black.lighter};
+  border-radius: 16px;
+  padding: 40px 60px;
 `;
 
 const Right = styled.div`
@@ -216,30 +180,12 @@ interface ReviewResult {
   url: string;
 }
 
-interface castType {
-  adult: boolean;
-  gender: number;
-  id: number;
-  known_for_department: string;
-  name: string;
-  original_name: string;
-  popularity: number;
-  profile_path: string;
-  cast_id: number;
-  character: string;
-  credit_id: string;
-  order: number;
-}
-
 const Detail = () => {
   const [leaving, setLeaving] = useState(false);
-  const [leavingCrew, setLeavingCrew] = useState(false);
   const [index, setIndex] = useState(0);
-  const [crewIndex, setCrewIndex] = useState(0);
   const { movieId } = useParams<{ movieId: string }>();
 
   const offset = 1;
-  const offset2 = 5;
 
   const { data, isLoading } = useQuery<GetMoviesResult>({
     queryKey: ["nowMovie"],
@@ -253,6 +199,7 @@ const Detail = () => {
   const nowMovieId = data?.results.filter(
     (movie) => String(movie.id) === movieId
   )[0].id;
+
   //영화 유투브
   const { data: video, isLoading: videoLoding } = useQuery({
     queryKey: ["video", nowMovieId],
@@ -274,32 +221,6 @@ const Detail = () => {
       return await getReviews(nowMovieId);
     },
   });
-  //영화 출연진
-  const { data: credits, isLoading: creditsLoding } = useQuery({
-    queryKey: ["credits", nowMovieId],
-    queryFn: async () => {
-      if (!nowMovieId) return { results: [] };
-      return await getCredits(nowMovieId);
-    },
-  });
-  console.log(credits);
-  //슬라이드
-  //출연진 슬라이드
-  const toggleCrew = () => setLeavingCrew((prev) => !prev);
-
-  const crewIndexFn = (bt: string) => {
-    if (credits) {
-      //사용할 data 값 - 15명의 배우들
-      setLeavingCrew(true);
-      const castsLeng = credits.cast.slice(0, 15).length;
-      const maxIndex = Math.ceil(castsLeng.length / offset2) - 1;
-      if (bt === "right") {
-        setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
-      } else {
-        setIndex((prev) => (prev === maxIndex ? maxIndex : prev - 1));
-      }
-    }
-  };
   //리뷰 슬라이드
   const toggleLeaving = () => setLeaving((prev) => !prev);
 
@@ -342,43 +263,11 @@ const Detail = () => {
                 )}
               </MovieWrap>
               <Crewrap>
-                <CrewList>
-                  <CrewTitleWrap>
-                    <SubTitle>Cast</SubTitle>
-                    <Arrow>
-                      <Box onClick={() => crewIndexFn("right")}>{"<"}</Box>
-                      <Box onClick={() => crewIndexFn("left")}>{">"}</Box>
-                    </Arrow>
-                  </CrewTitleWrap>
-                  <CrewImgWrap>
-                    <AnimatePresence
-                      initial={false}
-                      onExitComplete={toggleCrew}
-                    >
-                      <CrewSlider>
-                        {credits?.cast
-                          .slice(0, 15)
-                          .slice(
-                            crewIndex * offset2,
-                            crewIndex * offset2 + offset2
-                          )
-                          .map((cast: castType) => (
-                            <Wrap>
-                              <Box>
-                                <img
-                                  src={makeImagePath(cast.profile_path)}
-                                  width={"140px"}
-                                />
-                              </Box>
-                              <CrewName>{cast.name}</CrewName>
-                              <CharacName>{cast.character}</CharacName>
-                            </Wrap>
-                          ))}
-                      </CrewSlider>
-                    </AnimatePresence>
-                  </CrewImgWrap>
-                </CrewList>
+                <DtailCastSlide nowMovieId={nowMovieId} />
               </Crewrap>
+              <RandomMoviewrap>
+                <RandomMovieSlide />
+              </RandomMoviewrap>
             </Left>
             <Right>
               <RightWrap>
