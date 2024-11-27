@@ -19,6 +19,9 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   padding: 0 60px;
+  @media screen and (max-width: 800px) {
+    padding: 10px;
+  }
 `;
 const Loader = styled.div``;
 
@@ -30,7 +33,12 @@ const Inner = styled.div`
   display: grid;
   grid-template-columns: 3fr 1fr;
   gap: 20px;
+  @media screen and (max-width: 800px) {
+    grid-template-columns: 1fr;
+    padding: 60px 0px;
+  }
 `;
+
 const Left = styled.div`
   height: inherit;
   display: flex;
@@ -38,7 +46,35 @@ const Left = styled.div`
   gap: 10px;
 `;
 
-const MovieWrap = styled.div``;
+const Right = styled.div`
+  height: inherit;
+  @media screen and (max-width: 800px) {
+    display: none;
+  }
+`;
+
+const RightMobile = styled.div`
+  height: inherit;
+  display: none;
+  @media screen and (max-width: 800px) {
+    display: block;
+  }
+`;
+
+const MovieWrap = styled.div`
+  div:nth-child(1) {
+    border-radius: 14px;
+    overflow: hidden;
+    @media screen and (max-width: 800px) {
+      height: 400px;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    iframe:nth-child(1) {
+      height: 100%;
+    }
+  }
+`;
 
 const Crewrap = styled.div`
   width: 100%;
@@ -54,10 +90,6 @@ const RandomMoviewrap = styled.div`
   background-color: ${({ theme }) => theme.black.lighter};
   border-radius: 16px;
   padding: 40px 60px;
-`;
-
-const Right = styled.div`
-  height: inherit;
 `;
 
 const RightWrap = styled.div`
@@ -262,6 +294,75 @@ const Detail = () => {
                   />
                 )}
               </MovieWrap>
+              <RightMobile>
+                <RightWrap>
+                  <Title>{nowMovie?.title}</Title>
+                  <VoteAndAdult>
+                    <Wrap>
+                      <SubTitle>평점</SubTitle>
+                      <Box>
+                        {nowMovie ? nowMovie.vote_average.toFixed(1) : 0}
+                      </Box>
+                    </Wrap>
+                    <Wrap>
+                      <SubTitle>나이</SubTitle>
+                      <Box>{nowMovie?.adult ? "Adult" : "ALL"}</Box>
+                    </Wrap>
+                  </VoteAndAdult>
+                  <Wrap>
+                    <SubTitle>장르</SubTitle>
+                    <GenreItem>
+                      {nowMovie?.genre_ids.map((genreId) => (
+                        <Box key={genreId}>
+                          {
+                            genres?.genres.find(
+                              (item: GeneresItem) => item.id === genreId
+                            ).name
+                          }
+                        </Box>
+                      ))}
+                    </GenreItem>
+                  </Wrap>
+                  <Wrap>
+                    <ReviewTitleWrap>
+                      <SubTitle>리뷰</SubTitle>
+                      <Box onClick={reviewIndex}> {">"} </Box>
+                    </ReviewTitleWrap>
+                    <ReviewBox>
+                      <AnimatePresence
+                        initial={false}
+                        onExitComplete={toggleLeaving}
+                      >
+                        <Review
+                          key={index}
+                          variants={rowVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                          transition={{ type: "tween", duration: 1 }}
+                        >
+                          {reviews?.results.length === 0 ? (
+                            <Wrap>
+                              <ReviewDesc>리뷰가 없습니다</ReviewDesc>
+                            </Wrap>
+                          ) : (
+                            reviews?.results
+                              .slice(index * offset, index * offset + offset)
+                              .map((review: ReviewResult) => (
+                                <Wrap key={review.id}>
+                                  <ReviewTitle>
+                                    <SubTitle>{review.author}</SubTitle>
+                                  </ReviewTitle>
+                                  <ReviewDesc>{review.content}</ReviewDesc>
+                                </Wrap>
+                              ))
+                          )}
+                        </Review>
+                      </AnimatePresence>
+                    </ReviewBox>
+                  </Wrap>
+                </RightWrap>
+              </RightMobile>
               <Crewrap>
                 <DtailCastSlide nowMovieId={nowMovieId} />
               </Crewrap>

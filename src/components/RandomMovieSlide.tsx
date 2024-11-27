@@ -99,18 +99,30 @@ const CharacName = styled.div`
 `;
 
 const RandomMovieSlide = () => {
-  const [reSize, setReSize] = useState(false);
+  const [reSize, setReSize] = useState(false); // 반응형
+  const [width, setWidth] = useState(0); //반응형
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
-  const [width, setWidth] = useState(0);
-  const [offset, setOffSet] = useState(2);
+  const [offset, setOffSet] = useState(2); // offset - 페이지
   const [right, setRight] = useState(false);
   const [randomMoive, setRamdomMovie] = useState<Movie[]>([]);
   //반응형
   const handleResize = () => {
     setWidth(window.innerWidth);
   };
+  useEffect(() => {
+    setReSize(width < 1200 ? true : false);
+    reSize ? setOffSet(1) : setOffSet(2);
+    console.log(width, reSize);
+  }, [width, reSize]);
 
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   //영화
   const { data: movies, isLoading: loading } = useQuery({
     queryKey: ["movies"],
@@ -118,7 +130,7 @@ const RandomMovieSlide = () => {
       return await getMovies();
     },
   });
-
+  //렌덤 영화 스토리지 저장
   useEffect(() => {
     if (movies?.results) {
       const storedMovies = localStorage.getItem("randomMovies");
@@ -138,22 +150,7 @@ const RandomMovieSlide = () => {
     }
   }, [movies]);
 
-  useEffect(() => {
-    setReSize(width < 1200 ? true : false);
-    reSize ? setOffSet(1) : setOffSet(2);
-    console.log(width, reSize);
-  }, [width, reSize]);
   //슬라이드
-
-  useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    // 컴포넌트 언마운트 시 이벤트 리스너 삭제
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
   const toggleRandom = () => setLeaving((prev) => !prev);
 
   const crewIndexFn = (bt: string) => {
