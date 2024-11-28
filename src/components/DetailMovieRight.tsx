@@ -21,7 +21,7 @@ const RightWrap = styled.div`
   display: flex;
   flex-direction: column;
   gap: 40px;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     gap: 10px;
     min-height: 600px;
     top: 10px;
@@ -57,7 +57,7 @@ const SubTitle = styled.h3`
   font-weight: 400;
   margin-bottom: 14px;
   margin-left: 4px;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     margin-bottom: 6px;
   }
 `;
@@ -101,7 +101,7 @@ const ReviewBox = styled.div`
   align-items: center;
   position: relative;
   overflow: hidden;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     height: 200px;
   }
 `;

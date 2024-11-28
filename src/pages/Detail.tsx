@@ -13,7 +13,7 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   padding: 0 60px;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     padding: 10px;
   }
 `;
@@ -28,7 +28,7 @@ const Inner = styled.div`
   grid-template-columns: 3fr 1fr;
   gap: 20px;
   margin: 0 auto;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     grid-template-columns: 1fr;
     padding: 60px 0px;
   }
@@ -43,7 +43,7 @@ const Left = styled.div`
 
 const Right = styled.div`
   height: inherit;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     display: none;
   }
 `;
@@ -51,7 +51,7 @@ const Right = styled.div`
 const RightMobile = styled.div`
   height: inherit;
   display: none;
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 768px) {
     display: block;
   }
 `;
@@ -62,7 +62,7 @@ const MovieWrap = styled.div`
     overflow: hidden;
     height: 680px;
     width: 100%;
-    @media screen and (max-width: 800px) {
+    @media screen and (max-width: 768px) {
       height: 400px;
       border-radius: 14px;
       overflow: hidden;
