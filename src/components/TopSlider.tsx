@@ -90,7 +90,6 @@ const Overlay = styled.div`
 const TopSlider: React.FC<Top10SliderProps> = ({ movies }) => {
   const history = useNavigate();
   const onDetail = ({ movie }: { movie: Movie }) => {
-    console.log(movie);
     history(`/movies/${movie.id}`);
   };
 

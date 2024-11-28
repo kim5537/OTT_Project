@@ -26,6 +26,21 @@ export interface GetMoviesResult {
   total_results: number;
 }
 
+export interface ReviewResult {
+  author: string;
+  author_details: {
+    avatar_path: string | null;
+    name: string;
+    rating: number | null;
+    username: string;
+  };
+  content: string;
+  created_at: string;
+  id: string;
+  updated_at: string;
+  url: string;
+}
+
 //현재 상영 중인 영화 목록
 export const getMovies = async (): Promise<GetMoviesResult> => {
   const fetchPage = async (page: number) => {

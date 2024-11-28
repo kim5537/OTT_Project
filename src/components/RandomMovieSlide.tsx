@@ -6,13 +6,12 @@ import { makeImagePath } from "../utils";
 import { getCredits, getMovies, Movie } from "../api";
 import { useParams } from "react-router-dom";
 
-const SubTitle = styled.h3`
-  color: ${({ theme }) => theme.white.darker};
-  font-weight: 400;
-  margin-bottom: 10px;
-  margin-left: 4px;
-  font-size: 34px;
+const Title = styled.h3`
+  color: ${({ theme }) => theme.white.lighter};
+  word-break: keep-all;
+  margin-top: 10px;
 `;
+
 const Wrap = styled(motion.div)``;
 
 const Box = styled.div`
@@ -53,13 +52,27 @@ const Arrow = styled.div`
   gap: 10px;
 `;
 
+// const ImgWrap = styled.div`
+//   display: flex;
+//   max-width: 1300px;
+//   height: 280px;
+//   padding: 14px 80px;
+//   margin: 20px auto;
+//   justify-content: space-between;
+//   background-color: ${({ theme }) => theme.black.veryDark};
+//   border-radius: 16px;
+//   overflow: hidden;
+//   position: relative;
+// `;
+
 const ImgWrap = styled.div`
-  display: flex;
   max-width: 1300px;
-  height: 280px;
-  padding: 14px 80px;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 14px;
   margin: 20px auto;
-  justify-content: space-between;
   background-color: ${({ theme }) => theme.black.veryDark};
   border-radius: 16px;
   overflow: hidden;
@@ -67,19 +80,21 @@ const ImgWrap = styled.div`
 `;
 
 const Slider = styled(motion.div)`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  max-width: 1000px;
   position: absolute;
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  gap: 10px;
 `;
 
 const SliderWrap = styled.div`
   height: 100%;
   div:nth-child(1) {
-    //출연진 이미지 사이즈
-    width: 400px;
-    height: 200px;
+    // 이미지 사이즈
+    width: 300px;
+    height: 180px;
   }
 `;
 
@@ -98,31 +113,29 @@ const CharacName = styled.div`
   opacity: 0.6;
 `;
 
-const RandomMovieSlide = () => {
-  const [reSize, setReSize] = useState(false); // 반응형
-  const [width, setWidth] = useState(0); //반응형
+const RandomMovieSlide = ({
+  reSize,
+  middleSize,
+}: {
+  reSize: boolean;
+  middleSize: boolean;
+}) => {
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
-  const [offset, setOffSet] = useState(2); // offset - 페이지
+  const [offset, setOffSet] = useState(3); // offset - 페이지
   const [right, setRight] = useState(false);
   const [randomMoive, setRamdomMovie] = useState<Movie[]>([]);
-  //반응형
-  const handleResize = () => {
-    setWidth(window.innerWidth);
-  };
-  useEffect(() => {
-    setReSize(width < 1200 ? true : false);
-    reSize ? setOffSet(1) : setOffSet(2);
-    console.log(width, reSize);
-  }, [width, reSize]);
 
   useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    if (!middleSize && !reSize) {
+      setOffSet(3);
+    } else if (middleSize) {
+      setOffSet(2);
+    } else if (reSize) {
+      setOffSet(1);
+    }
+  }, [reSize, middleSize]);
+
   //영화
   const { data: movies, isLoading: loading } = useQuery({
     queryKey: ["movies"],
@@ -185,7 +198,7 @@ const RandomMovieSlide = () => {
   return (
     <List>
       <TitleWrap>
-        <SubTitle>추천 영화</SubTitle>
+        <Title>추천 영화</Title>
         <Arrow>
           <Box onClick={() => crewIndexFn("left")}>{"<"}</Box>
           <Box onClick={() => crewIndexFn("right")}>{">"}</Box>
@@ -209,7 +222,7 @@ const RandomMovieSlide = () => {
             {randomMoive
               .slice(index * offset, index * offset + offset)
               .map((movie) => (
-                <SliderWrap>
+                <SliderWrap key={movie.id}>
                   <Box>
                     <PosterWrap>
                       <img

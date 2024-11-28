@@ -1,9 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
 import { getCredits } from "../api";
+
+const Title = styled.h3`
+  color: ${({ theme }) => theme.white.lighter};
+  word-break: keep-all;
+  margin-top: 10px;
+`;
 
 const SubTitle = styled.h3`
   color: ${({ theme }) => theme.white.darker};
@@ -44,12 +50,13 @@ const Arrow = styled.div`
 `;
 
 const CrewImgWrap = styled.div`
-  display: flex;
   max-width: 1300px;
   height: 210px;
-  padding: 14px 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 14px;
   margin: 20px auto;
-  justify-content: space-between;
   background-color: ${({ theme }) => theme.black.veryDark};
   border-radius: 16px;
   overflow: hidden;
@@ -57,17 +64,19 @@ const CrewImgWrap = styled.div`
 `;
 
 const CrewSlider = styled(motion.div)`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  max-width: 1000px;
   position: absolute;
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  gap: 3%;
 `;
 
 const CrewSliderWrap = styled.div`
   height: 100%;
   div:nth-child(1) {
-    //출연진 이미지 사이즈
+    //이미지 사이즈
     width: 140px;
     height: 140px;
   }
@@ -102,11 +111,29 @@ interface castType {
   credit_id: string;
   order: number;
 }
-const DtailCastSlide = ({ nowMovieId }: { nowMovieId: number | undefined }) => {
+const DtailCastSlide = ({
+  nowMovieId,
+  reSize,
+  middleSize,
+}: {
+  nowMovieId: number | undefined;
+  reSize: boolean;
+  middleSize: boolean;
+}) => {
   const [leavingCrew, setLeavingCrew] = useState(false);
   const [crewIndex, setCrewIndex] = useState(0);
   const [right, setRight] = useState(false);
-  const offset2 = 5;
+  const [offset2, setOffset2] = useState(5);
+
+  useEffect(() => {
+    if (!middleSize && !reSize) {
+      setOffset2(5);
+    } else if (middleSize) {
+      setOffset2(3);
+    } else if (reSize) {
+      setOffset2(1);
+    }
+  }, [reSize, middleSize]);
 
   //영화 출연진
   const { data: credits, isLoading: creditsLoding } = useQuery({
@@ -116,7 +143,6 @@ const DtailCastSlide = ({ nowMovieId }: { nowMovieId: number | undefined }) => {
       return await getCredits(nowMovieId);
     },
   });
-
   //출연진 슬라이드
   const toggleCrew = () => setLeavingCrew((prev) => !prev);
 
@@ -153,7 +179,7 @@ const DtailCastSlide = ({ nowMovieId }: { nowMovieId: number | undefined }) => {
   return (
     <CrewList>
       <CrewTitleWrap>
-        <SubTitle>출연 배우</SubTitle>
+        <Title>출연 배우</Title>
         <Arrow>
           <Box onClick={() => crewIndexFn("left")}>{"<"}</Box>
           <Box onClick={() => crewIndexFn("right")}>{">"}</Box>
@@ -178,7 +204,7 @@ const DtailCastSlide = ({ nowMovieId }: { nowMovieId: number | undefined }) => {
               .slice(0, 15)
               .slice(crewIndex * offset2, crewIndex * offset2 + offset2)
               .map((cast: castType) => (
-                <CrewSliderWrap>
+                <CrewSliderWrap key={cast.id}>
                   <Box>
                     {cast.profile_path ? (
                       <img
