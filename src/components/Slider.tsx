@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { makeImagePath } from "../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faPlay } from "@fortawesome/free-solid-svg-icons";
-import { getCertification } from "../api";
+import { getCertification, Movie } from "../api";
+import { useNavigate } from "react-router-dom";
 
 interface SliderProps {
   movies: any[];
@@ -192,6 +193,7 @@ const Slider: React.FC<SliderProps> = ({ movies, title }) => {
   const [certifications, setCertifications] = useState<Record<number, string>>(
     {}
   );
+  const history = useNavigate(); // 상세 페이지 이동
 
   useEffect(() => {
     const fetchCertifications = async () => {
@@ -229,6 +231,11 @@ const Slider: React.FC<SliderProps> = ({ movies, title }) => {
       .map((_, i) => movies[(index + i) % totalMovies]);
   };
 
+  //// 상세 페이지 이동
+  const onDetail = ({ movie }: { movie: Movie }) => {
+    history(`/movies/${movie.id}`);
+  };
+
   return (
     <Container>
       <SliderTitle>{title}</SliderTitle>
@@ -260,7 +267,10 @@ const Slider: React.FC<SliderProps> = ({ movies, title }) => {
                 <Info>
                   <h4>{movie.title}</h4>
                   <div className="info-buttons">
-                    <FontAwesomeIcon icon={faPlay} />
+                    <FontAwesomeIcon
+                      icon={faPlay}
+                      onClick={() => onDetail({ movie })}
+                    />
                     <FontAwesomeIcon icon={faHeart} />
                   </div>
                   <div className="info-rating">

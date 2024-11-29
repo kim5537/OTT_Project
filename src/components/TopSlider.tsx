@@ -89,6 +89,8 @@ const Overlay = styled.div`
 
 const TopSlider: React.FC<Top10SliderProps> = ({ movies }) => {
   const history = useNavigate();
+
+  // 상세 페이지 이동
   const onDetail = ({ movie }: { movie: Movie }) => {
     history(`/movies/${movie.id}`);
   };

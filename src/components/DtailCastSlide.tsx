@@ -10,14 +10,6 @@ const Title = styled.h3`
   word-break: keep-all;
   margin-top: 10px;
 `;
-
-const SubTitle = styled.h3`
-  color: ${({ theme }) => theme.white.darker};
-  font-weight: 400;
-  margin-bottom: 10px;
-  margin-left: 4px;
-  font-size: 34px;
-`;
 const Wrap = styled(motion.div)``;
 
 const Box = styled.div`
@@ -51,7 +43,7 @@ const Arrow = styled.div`
 
 const CrewImgWrap = styled.div`
   max-width: 1300px;
-  height: 210px;
+  min-height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -75,6 +67,7 @@ const CrewSlider = styled(motion.div)`
 
 const CrewSliderWrap = styled.div`
   height: 100%;
+  max-width: 140px;
   div:nth-child(1) {
     //이미지 사이즈
     width: 140px;
