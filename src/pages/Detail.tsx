@@ -76,7 +76,7 @@ const MovieWrap = styled.div`
 
 const Crewrap = styled.div`
   width: 100%;
-  height: 340px;
+  height: 100%;
   background-color: ${({ theme }) => theme.black.lighter};
   border-radius: 16px;
   padding: 40px 60px;

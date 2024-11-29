@@ -16,6 +16,7 @@ const RightWrap = styled.div`
   top: 60px;
   background-color: ${(props) => props.theme.black.lighter};
   min-height: 800px;
+  min-width: 320px;
   padding: 40px;
   border-radius: 16px;
   display: flex;
@@ -78,6 +79,7 @@ const Box = styled.div`
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  text-align: center;
 `;
 
 // 리뷰
