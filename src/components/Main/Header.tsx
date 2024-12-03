@@ -3,15 +3,15 @@ import styled from "styled-components";
 import { motion, useAnimation, useScroll } from "framer-motion";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { ReactComponent as VivaPlayLogo } from "../vivaplay.svg";
+import { ReactComponent as VivaPlayLogo } from "../../vivaplay.svg";
 
 const Nav = styled(motion.nav)<{ $isScrolled: boolean }>`
   width: 100%;
-  height: 60px;
+  height: 80px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${(props) => (props.$isScrolled ? "10px 40px" : "20px 60px")};
+  padding: ${(props) => (props.$isScrolled ? "20px 40px" : "30px 60px")};
   background-color: ${(props) => (props.$isScrolled ? "black" : "transparent")};
   color: ${(props) =>
     props.$isScrolled ? props.theme.blue.lighter : props.theme.blue.darker};
@@ -190,7 +190,6 @@ const Header = () => {
 
   return (
     <Nav $isScrolled={isScrolled}>
-      {/* Left Section */}
       <Col>
         <LogoContainer
           onClick={goToMain}
@@ -211,14 +210,13 @@ const Header = () => {
           </Item>
           <Item>
             <Link to="/love">
-              내가 찜한 리스트
+              즐겨찾기
               {LoveMatch && <Circle layoutId="circle" />}
             </Link>
           </Item>
         </Items>
       </Col>
 
-      {/* Right Section */}
       <Col>
         <Search onSubmit={handleSubmit(onValid)}>
           <motion.svg

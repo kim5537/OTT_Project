@@ -41,6 +41,40 @@ export interface ReviewResult {
   url: string;
 }
 
+interface Idgenres {
+  id: number;
+  name: string;
+}
+
+export interface IdMovie {
+  adult: boolean;
+  backdrop_path: string;
+  belongs_to_collection: object;
+  budget: number;
+  genres: Idgenres[];
+  homepage: string;
+  id: number;
+  imdb_id: string;
+  origin_country: object;
+  original_language: string;
+  original_title: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  production_companies: object;
+  production_countries: object;
+  release_date: string;
+  revenue: number;
+  runtime: number;
+  spoken_languages: object;
+  status: string;
+  tagline: string;
+  title: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
+}
+
 //현재 상영 중인 영화 목록
 export const getMovies = async (): Promise<GetMoviesResult> => {
   const fetchPage = async (page: number) => {
@@ -99,6 +133,23 @@ export const getCertification = (movieId: number) => {
 //영화 출연진
 export const getCredits = (movieId: number) => {
   return fetch(`${BASE_PATH}/movie/${movieId}/credits?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+};
+
+// 특정 장르의 영화 목록
+export const searchMoviesByGenre = (genreId: number) => {
+  return fetch(
+    `${BASE_PATH}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`
+  )
+    .then((response) => response.json())
+    .then((data) => data.results);
+};
+
+//id대조 영화값
+
+export const getIdDetaile = (movieId: number) => {
+  return fetch(`${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}`).then(
     (response) => response.json()
   );
 };

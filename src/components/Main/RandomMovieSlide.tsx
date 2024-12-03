@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { makeImagePath } from "../utils";
-import { getCredits, getMovies, Movie } from "../api";
+import { makeImagePath } from "../../utils";
+import { getCredits, getMovies, Movie } from "../../api";
 import { useParams } from "react-router-dom";
 
 const Title = styled.h3`

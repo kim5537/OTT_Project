@@ -1,385 +1,215 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Routes, useLocation, useMatch } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // useNavigate 추가
 import styled from "styled-components";
 import {
   searchContents,
+  getCertification,
   GetMoviesResult,
-  searchGeneres,
-  getReviews,
-  getVideos,
   Movie,
 } from "../api";
 import { makeImagePath } from "../utils";
-import YouTube from "react-youtube";
-import { Link } from "react-router-dom";
 import Pagination from "react-js-pagination";
 
-const Container = styled.main`
+const Container = styled.div`
   width: 100%;
-  margin-top: 60px;
+  min-height: 100vh;
+  background: ${(props) => props.theme.black.lighter};
+  padding: 20px;
+  padding-left: 50px;
 `;
 
-const SearchBox = styled.div`
-  width: 100%;
-  padding: 10px;
+const Header = styled.div`
+  margin-top: 80px;
+  margin-bottom: 60px;
+  padding-left: 30px;
+  color: ${(props) => props.theme.white.darker};
+  h1 {
+    font-size: 28px;
+  }
 `;
 
-const MovieSection = styled.div`
+const MovieGrid = styled.div`
   display: flex;
-  gap: 10px;
-  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 50px;
 `;
 
-const MovieImg = styled.img`
-  width: 50%;
-  height: auto;
+const MovieCard = styled.div`
+  width: 240px;
+  height: 150px;
+  background: ${(props) => props.theme.black.darker};
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const MoviePoster = styled.img`
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 `;
 
-const MovieInfo = styled.div`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-
-const MovieTitle = styled.h4`
-  font-size: 36px;
-  background: ${(props) => props.theme.red};
-  color: ${(props) => props.theme.white.darker};
-  border-radius: 8px;
-  padding: 0 10px;
-`;
-
-const MovieOverView = styled.p`
-  font-size: 24px;
-  line-height: 1.6;
-  border-top: 1px solid ${(props) => props.theme.black.lighter};
-  border-bottom: 1px solid ${(props) => props.theme.black.lighter};
-  padding: 20px 0;
-`;
-
-const MovieDate = styled.div`
-  font-size: 18px;
-  span {
-    display: block;
-    background: #ffa300;
-    padding: 10px;
-    border-radius: 8px;
-  }
-`;
-
-const MovieValue = styled.div`
-  font-size: 18px;
-  width: 50px;
-  height: 50px;
-  background: ${(props) => props.theme.black.lighter};
-  color: ${(props) => props.theme.white.darker};
-  text-align: center;
-  line-height: 50px;
-`;
-
-const MovieRate = styled.div`
-  font-size: 18px;
-  span {
-    display: block;
-    background: #ffa300;
-    padding: 10px;
-    border-radius: 8px;
-  }
-`;
-
-const RateNumbers = styled.div`
-  font-size: 18px;
-  span {
-    display: block;
-    background: #ffa300;
-    padding: 10px;
-    border-radius: 8px;
-  }
-`;
-
-const ReviewSection = styled.div`
-  background: #f8f9fa;
-  color: ${(props) => props.theme.black.darker};
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  li {
-    margin: 10px 0;
-    padding: 10px;
-  }
-`;
-
-const ReviewTitle = styled.span`
-  font-size: 20px;
-`;
-
-const GenereSection = styled.div`
-  background: #ffa300;
-  padding: 10px;
-  border-radius: 8px;
-`;
-
-const Tabs = styled.div`
+const Overlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 40px;
+  color: ${(props) => props.theme.white.lighter};
   display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  margin: 25px 0;
-  padding-left: 100px;
-`;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 
-const Tab = styled.span<{ isActive: boolean }>`
-  font-size: 16px;
-  text-align: center;
-  text-transform: uppercase;
-  padding: 7px 30px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 1);
-  color: ${(props) =>
-    props.isActive ? props.theme.red : props.theme.black.darker};
-  transition: all 0.3s;
-  &:hover {
-    background: ${(props) => props.theme.red};
-    color: #fff;
+  .title {
+    font-size: 14px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .age-restriction {
+    font-size: 12px;
+    padding: 2px 5px;
+    color: white;
+    border-radius: 4px;
+    font-weight: bold;
+    background: ${(props) => props.theme.blue.lighter};
   }
 `;
 
 const StyledPagination = styled.div`
   display: flex;
   justify-content: center;
-  margin: 20px auto;
-  background: crimson;
-  width: 20%;
-  padding: 20px;
-  border-radius: 10px;
+  margin: 100px auto;
   ul {
     display: flex;
     list-style: none;
     padding: 0;
     li {
-      display: inline;
       margin: 0 5px;
       a {
-        text-decoration: none;
-        color: #fff;
+        color: ${(props) => props.theme.white.darker};
         padding: 5px 10px;
-        border-radius: 50%;
-        transition: background 0.3s, color 0.3s;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background 0.3s;
         &:hover {
-          background: ${(props) => props.theme.red};
-          color: #fff;
+          background: ${(props) => props.theme.blue.darker};
         }
       }
       &.active a {
-        color: #fff;
-        background: ${(props) => props.theme.red};
+        background: ${(props) => props.theme.blue.darker};
+        color: white;
       }
     }
   }
 `;
 
-interface Obj {
-  id: Number;
-  name: string;
-}
-
-interface ReviewContents {
-  author: string;
-  author_details: {
-    name: string;
-    username: string;
-    avatar_path: string;
-    rating: number;
-  };
-  content: string;
-  created_at: string;
-  id: string;
-  updated_at: string;
-  url: string;
-}
-
-interface ContentState<T> {
-  [key: number]: T[];
-}
-
 const Search = () => {
-  const [videos, setVideos] = useState<ContentState<string>>({});
   const location = useLocation();
+  const navigate = useNavigate();
   const keyword = new URLSearchParams(location.search).get("keyword");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [certifications, setCertifications] = useState<Record<number, string>>(
+    {}
+  );
+
+  const moviesPerPage = 20;
 
   const { data: movieData, isLoading: movieLoading } =
     useQuery<GetMoviesResult>({
-      queryKey: ["multiContents", keyword],
+      queryKey: ["searchContents", keyword],
       queryFn: () => searchContents(keyword),
     });
 
-  const ids = movieData?.results.map((movie) => movie.id);
-
-  const { data: genereData, isLoading: genereLoading } = useQuery({
-    queryKey: ["getGeneres"],
-    queryFn: searchGeneres,
-  });
-
-  const { data: reviewData, isLoading: reviewLoading } = useQuery({
-    queryKey: ["getReviews", ids],
-    queryFn: () =>
-      ids ? Promise.all(ids.map((id) => getReviews(id))) : Promise.resolve([]),
-    enabled: !!ids,
-  });
-
-  const { data: videoData, isLoading: videoLoading } = useQuery({
-    queryKey: ["getVideos", ids],
-    queryFn: () =>
-      ids ? Promise.all(ids.map((id) => getVideos(id))) : Promise.resolve([]),
-    enabled: !!ids,
-  });
+  const currentMovies = (movieData?.results || [])
+    .filter((movie) => movie?.id) // id가 있는 영화만 포함
+    .slice((currentPage - 1) * moviesPerPage, currentPage * moviesPerPage);
 
   useEffect(() => {
-    if (movieData && videoData) {
-      movieData.results.forEach((movie) => {
-        getVideos(movie.id).then((data) => {
-          if (data?.results) {
-            const videoIds = data.results.map((video: any) => video.key);
-            setVideos((prev) => ({
-              ...prev,
-              [movie.id]: videoIds,
-            }));
-          }
-        });
-      });
+    const fetchCertifications = async () => {
+      const results: Record<number, string> = {};
+      for (const movie of currentMovies) {
+        const data = await getCertification(movie.id);
+        const krRelease = data.results.find(
+          (release: any) => release.iso_3166_1 === "KR"
+        );
+        results[movie.id] =
+          krRelease && krRelease.release_dates.length > 0
+            ? krRelease.release_dates[0].certification || "15"
+            : "15";
+      }
+      setCertifications(results);
+    };
+
+    if (currentMovies.length > 0) {
+      fetchCertifications();
     }
-  }, [movieData, videoData]);
-
-  const reviewMatch = useMatch("search/review");
-  const videoMatch = useMatch("search/video");
-
-  const [showReviewContent, setShowReviewContent] = useState(false);
-  const [showVideoContent, setShowVideoContent] = useState(false);
-
-  const toggleReviewContent = () => {
-    setShowReviewContent(!showReviewContent);
-  };
-
-  const toggleVideoContent = () => {
-    setShowVideoContent(!showVideoContent);
-  };
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [moviesPerPage, setMoviesPerPage] = useState(2);
+  }, [currentMovies]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  const indexOfLastMovie = currentPage * moviesPerPage;
-  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-  const currentMovies: Movie[] =
-    movieData?.results.slice(indexOfFirstMovie, indexOfLastMovie) || [];
+  const onDetail = (movieId: number | undefined) => {
+    if (!movieId) {
+      console.error("Invalid movie ID:", movieId);
+      return;
+    }
+    navigate(`/movies/${movieId}`);
+  };
 
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  // }, [currentPage]);
+  if (movieLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Container>
-      {movieLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {currentMovies?.map((movie, index) => (
-            <SearchBox key={index}>
-              <MovieSection>
-                {movie.backdrop_path ? (
-                  <MovieImg
-                    src={makeImagePath(movie.backdrop_path)}
-                    alt="img"
-                  />
-                ) : (
-                  <div style={{ width: "50%" }}>Ready for image</div>
-                )}
-
-                <MovieInfo>
-                  <MovieTitle>{movie.original_title}</MovieTitle>
-                  <MovieOverView>{movie.overview}</MovieOverView>
-                  <MovieDate>
-                    <span>Release : {movie.release_date}</span>
-                  </MovieDate>
-                  <MovieRate>
-                    <span>Rate : {movie.vote_average?.toFixed(2)}</span>
-                  </MovieRate>
-                  <RateNumbers>
-                    <span>
-                      Members : {movie.vote_count?.toLocaleString("ko-kr")}
-                    </span>
-                  </RateNumbers>
-                  <MovieValue>{movie.adult ? "18+" : "ALL"}</MovieValue>
-                  <GenereSection>
-                    {movie.genre_ids
-                      .map(
-                        (id) =>
-                          genereData?.genres.find((item: Obj) => item.id === id)
-                            ?.name
-                      )
-                      .join(", ")}
-                  </GenereSection>
-                </MovieInfo>
-              </MovieSection>
-
-              <ReviewSection>
-                <h3>😎😜Review😎😍</h3>
-                {reviewLoading ? (
-                  <div>Loading Reviews...</div>
-                ) : (
-                  <ul>
-                    {reviewData && Array.isArray(reviewData[index].results) ? (
-                      reviewData[index].results.map(
-                        (review: ReviewContents) => (
-                          <li key={review.id}>
-                            <div>{review.author}</div>
-                            <ReviewTitle>{review.content}</ReviewTitle>
-                          </li>
-                        )
-                      )
-                    ) : (
-                      <li>No Reviews</li>
-                    )}
-                  </ul>
-                )}
-              </ReviewSection>
-              <div>
-                {videos[movie.id]?.length > 0 ? (
-                  <YouTube
-                    videoId={videos[movie.id][0]}
-                    opts={{
-                      width: "100%",
-                      height: "800px",
-                      playerVars: {
-                        autoplay: 0,
-                        modestbranding: 1,
-                        loop: 0,
-                        playlist: videos[movie.id][0],
-                      },
-                    }}
-                  />
-                ) : (
-                  "No Available"
-                )}
-              </div>
-            </SearchBox>
-          ))}
-          <StyledPagination>
-            <Pagination
-              onChange={handlePageChange}
-              activePage={currentPage}
-              itemsCountPerPage={moviesPerPage}
-              totalItemsCount={movieData?.results.length || 0}
-              pageRangeDisplayed={5}
+      <Header>
+        {keyword ? (
+          <h1>검색어 "{keyword}"에 대한 결과입니다.</h1>
+        ) : (
+          <h1>검색어를 입력해주세요!</h1>
+        )}
+      </Header>
+      <MovieGrid>
+        {currentMovies.map((movie) => (
+          <MovieCard key={movie.id} onClick={() => onDetail(movie.id)}>
+            <MoviePoster
+              src={makeImagePath(movie.poster_path || "")}
+              alt={movie.title}
             />
-          </StyledPagination>
-        </>
-      )}
+            <Overlay>
+              <div className="title">{movie.title}</div>
+              <div className="age-restriction">
+                {certifications[movie.id] || "15"}
+              </div>
+            </Overlay>
+          </MovieCard>
+        ))}
+      </MovieGrid>
+      <StyledPagination>
+        <Pagination
+          activePage={currentPage}
+          itemsCountPerPage={moviesPerPage}
+          totalItemsCount={movieData?.results.length || 0}
+          pageRangeDisplayed={5}
+          onChange={handlePageChange}
+        />
+      </StyledPagination>
     </Container>
   );
 };

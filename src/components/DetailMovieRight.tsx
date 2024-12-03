@@ -1,14 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  ReviewResult,
-  getMovies,
-  searchGeneres,
-  getReviews,
-  getCertification,
-  Movie,
-} from "../api";
+import { ReviewResult, searchGeneres, getReviews, IdMovie } from "../api";
 import { useQuery } from "@tanstack/react-query";
 
 const RightWrap = styled.div`
@@ -142,29 +135,18 @@ const ReviewDesc = styled.div`
   }
 `;
 
-interface GeneresItem {
-  id: number;
-  name: string;
-}
-
 const DetailMovieRight = ({
   nowMovie,
   nowMovieId,
   reSize,
 }: {
-  nowMovie: Movie | undefined;
+  nowMovie: IdMovie | undefined;
   nowMovieId: number | undefined;
   reSize: boolean;
 }) => {
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
   const offset = 1;
-
-  //장르
-  const { data: genres, isLoading: genreLoding } = useQuery({
-    queryKey: ["genre"],
-    queryFn: searchGeneres,
-  });
 
   //영화 리뷰
   const { data: reviews, isLoading: reviewsLoding } = useQuery({
@@ -197,7 +179,7 @@ const DetailMovieRight = ({
       x: -window.innerWidth - 10,
     },
   };
-
+  console.log(nowMovie?.genres);
   return (
     <RightWrap>
       <Title>{nowMovie?.title}</Title>
@@ -214,13 +196,8 @@ const DetailMovieRight = ({
       <Wrap>
         <SubTitle>장르</SubTitle>
         <GenreItem>
-          {nowMovie?.genre_ids.map((genreId) => (
-            <Box key={genreId}>
-              {
-                genres?.genres.find((item: GeneresItem) => item.id === genreId)
-                  .name
-              }
-            </Box>
+          {nowMovie?.genres.map((genre) => (
+            <Box key={genre.id}>{genre.name}</Box>
           ))}
         </GenreItem>
       </Wrap>

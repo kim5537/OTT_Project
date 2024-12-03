@@ -1,7 +1,9 @@
 import { Outlet } from "react-router-dom";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import theme from "./theme";
-import Header from "./components/Header";
+import Header from "./components/Main/Header";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const GlobalStyle = createGlobalStyle`
 

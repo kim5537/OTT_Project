@@ -1,10 +1,10 @@
-import { getVideos, getMovies, GetMoviesResult } from "../api";
+import { getVideos, getIdDetaile, IdMovie } from "../api";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import YouTube from "react-youtube";
 import styled from "styled-components";
 import DtailCastSlide from "../components/DtailCastSlide";
-import RandomMovieSlide from "../components/RandomMovieSlide";
+import RandomMovieSlide from "../../src/components/Main/RandomMovieSlide";
 import DetailMovieRight from "../components/DetailMovieRight";
 import { useEffect, useState } from "react";
 
@@ -91,12 +91,12 @@ const RandomMoviewrap = styled.div`
 `;
 
 const Detail = () => {
+  const movieId = Number(useParams<{ movieId: string }>().movieId?.trim());
   const [reSize, setReSize] = useState(window.innerWidth < 1200);
   const [middleSize, setMiddleSize] = useState(
     window.innerWidth < 1500 && window.innerWidth >= 1200
   );
-  const { movieId } = useParams<{ movieId: string }>();
-
+  // const { movieId } = useParams<{ movieId: string }>();
   //반응형
   useEffect(() => {
     const handleResize = () => {
@@ -110,26 +110,21 @@ const Detail = () => {
     };
   }, []);
 
-  //영화데이터들
-  const { data, isLoading } = useQuery<GetMoviesResult>({
-    queryKey: ["nowMovie"],
-    queryFn: getMovies,
-  });
-  //해당영화정보
-  const nowMovie = data?.results.filter(
-    (movie) => movie.id === Number(movieId)
-  )[0];
-  //해당영화 id
-  const nowMovieId = data?.results.filter(
-    (movie) => String(movie.id) === movieId
-  )[0].id;
-
-  //영화 유투브
-  const { data: video, isLoading: videoLoding } = useQuery({
-    queryKey: ["video", nowMovieId],
+  //영화 id 데이터
+  const { data: nowMovie, isLoading } = useQuery<IdMovie>({
+    queryKey: ["movieData", movieId],
     queryFn: async () => {
-      if (!nowMovieId) return { results: [] };
-      return await getVideos(nowMovieId);
+      if (!movieId) return { movie: 0 };
+      return await getIdDetaile(movieId);
+    },
+  });
+
+  // 영화 유투브
+  const { data: video, isLoading: videoLoding } = useQuery({
+    queryKey: ["video", movieId],
+    queryFn: async () => {
+      if (!movieId) return { results: [] };
+      return await getVideos(movieId);
     },
   });
 
@@ -152,81 +147,14 @@ const Detail = () => {
                 <DetailMovieRight
                   reSize={reSize}
                   nowMovie={nowMovie}
-                  nowMovieId={nowMovieId}
+                  nowMovieId={movieId}
                 />
-                {/* <RightWrap>
-                  <Title>{nowMovie?.title}</Title>
-                  <VoteAndAdult>
-                    <Wrap>
-                      <SubTitle>평점</SubTitle>
-                      <Box>
-                        {nowMovie ? nowMovie.vote_average.toFixed(1) : 0}
-                      </Box>
-                    </Wrap>
-                    <Wrap>
-                      <SubTitle>나이</SubTitle>
-                      <Box>{nowMovie?.adult ? "Adult" : "ALL"}</Box>
-                    </Wrap>
-                  </VoteAndAdult>
-                  <Wrap>
-                    <SubTitle>장르</SubTitle>
-                    <GenreItem>
-                      {nowMovie?.genre_ids.map((genreId) => (
-                        <Box key={genreId}>
-                          {
-                            genres?.genres.find(
-                              (item: GeneresItem) => item.id === genreId
-                            ).name
-                          }
-                        </Box>
-                      ))}
-                    </GenreItem>
-                  </Wrap>
-                  <Wrap>
-                    <ReviewTitleWrap>
-                      <SubTitle>리뷰</SubTitle>
-                      <Box onClick={reviewIndex}> {">"} </Box>
-                    </ReviewTitleWrap>
-                    <ReviewBox>
-                      <AnimatePresence
-                        initial={false}
-                        onExitComplete={toggleLeaving}
-                      >
-                        <Review
-                          key={index}
-                          variants={rowVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                          transition={{ type: "tween", duration: 1 }}
-                        >
-                          {reviews?.results.length === 0 ? (
-                            <Wrap>
-                              <ReviewDesc>리뷰가 없습니다</ReviewDesc>
-                            </Wrap>
-                          ) : (
-                            reviews?.results
-                              .slice(index * offset, index * offset + offset)
-                              .map((review: ReviewResult) => (
-                                <Wrap key={review.id}>
-                                  <ReviewTitle>
-                                    <SubTitle>{review.author}</SubTitle>
-                                  </ReviewTitle>
-                                  <ReviewDesc>{review.content}</ReviewDesc>
-                                </Wrap>
-                              ))
-                          )}
-                        </Review>
-                      </AnimatePresence>
-                    </ReviewBox>
-                  </Wrap>
-                </RightWrap> */}
               </RightMobile>
               <Crewrap>
                 <DtailCastSlide
                   reSize={reSize}
                   middleSize={middleSize}
-                  nowMovieId={nowMovieId}
+                  nowMovieId={movieId}
                 />
               </Crewrap>
               <RandomMoviewrap>
@@ -237,7 +165,7 @@ const Detail = () => {
               <DetailMovieRight
                 reSize={reSize}
                 nowMovie={nowMovie}
-                nowMovieId={nowMovieId}
+                nowMovieId={movieId}
               />
             </Right>
           </Inner>
