@@ -1,14 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  ReviewResult,
-  getMovies,
-  searchGeneres,
-  getReviews,
-  getCertification,
-  Movie,
-} from "../api";
+import { ReviewResult, getCertification, getReviews, IdMovie } from "../api";
 import { useQuery } from "@tanstack/react-query";
 
 const RightWrap = styled.div`
@@ -16,6 +9,7 @@ const RightWrap = styled.div`
   top: 60px;
   background-color: ${(props) => props.theme.black.lighter};
   min-height: 800px;
+  min-width: 320px;
   padding: 40px;
   border-radius: 16px;
   display: flex;
@@ -45,6 +39,7 @@ const VoteWrap = styled(motion.div)`
   flex-direction: column;
   height: 80px;
   width: 100%;
+  margin-top: 10px;
 `;
 
 const Wrap = styled(motion.div)`
@@ -78,6 +73,8 @@ const Box = styled.div`
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  text-align: center;
+  cursor: pointer;
 `;
 
 // 리뷰
@@ -140,29 +137,18 @@ const ReviewDesc = styled.div`
   }
 `;
 
-interface GeneresItem {
-  id: number;
-  name: string;
-}
-
 const DetailMovieRight = ({
   nowMovie,
   nowMovieId,
   reSize,
 }: {
-  nowMovie: Movie | undefined;
+  nowMovie: IdMovie | undefined;
   nowMovieId: number | undefined;
   reSize: boolean;
 }) => {
   const [leaving, setLeaving] = useState(false);
   const [index, setIndex] = useState(0);
   const offset = 1;
-
-  //장르
-  const { data: genres, isLoading: genreLoding } = useQuery({
-    queryKey: ["genre"],
-    queryFn: searchGeneres,
-  });
 
   //영화 리뷰
   const { data: reviews, isLoading: reviewsLoding } = useQuery({
@@ -196,35 +182,52 @@ const DetailMovieRight = ({
     },
   };
 
+  const [certifications, setCertifications] = useState<Record<number, string>>(
+    {}
+  );
+
+  useEffect(() => {
+    if (nowMovie) {
+      const fetchCertifications = async () => {
+        const results: Record<number, string> = {};
+        const data = await getCertification(nowMovie.id);
+        const krRelease = data.results.find(
+          (release: any) => release.iso_3166_1 === "KR"
+        );
+        results[nowMovie.id] =
+          krRelease && krRelease.release_dates.length > 0
+            ? krRelease.release_dates[0].certification || "15"
+            : "15";
+        setCertifications(results);
+      };
+      fetchCertifications();
+    }
+  }, [nowMovie]);
+
   return (
     <RightWrap>
       <Title>{nowMovie?.title}</Title>
       <VoteAndAdult>
         <VoteWrap>
-          <SubTitle>평점</SubTitle>
+          <SubTitle>⭐ 평점</SubTitle>
           <Box>{nowMovie ? nowMovie.vote_average.toFixed(1) : 0}</Box>
         </VoteWrap>
         <VoteWrap>
-          <SubTitle>나이</SubTitle>
-          <Box>{nowMovie?.adult ? "Adult" : "ALL"}</Box>
+          <SubTitle>👥 연령등급</SubTitle>
+          <Box>{certifications[nowMovie?.id || 0] || "15"}</Box>
         </VoteWrap>
       </VoteAndAdult>
       <Wrap>
-        <SubTitle>장르</SubTitle>
+        <SubTitle> ✔️ 장르</SubTitle>
         <GenreItem>
-          {nowMovie?.genre_ids.map((genreId) => (
-            <Box key={genreId}>
-              {
-                genres?.genres.find((item: GeneresItem) => item.id === genreId)
-                  .name
-              }
-            </Box>
+          {nowMovie?.genres.map((genre) => (
+            <Box key={genre.id}>{genre.name}</Box>
           ))}
         </GenreItem>
       </Wrap>
       <Wrap>
         <ReviewHadlineWrap>
-          <SubTitle>리뷰</SubTitle>
+          <SubTitle>👏 리뷰</SubTitle>
           <Box onClick={reviewIndex}> {">"} </Box>
         </ReviewHadlineWrap>
         <ReviewBox>

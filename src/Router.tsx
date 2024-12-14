@@ -1,10 +1,12 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import Root from "./Root";
 import Home from "./pages/Home";
-import Tv from "./pages/Tv";
+import Login from "./pages/Login";
 import Search from "./pages/Search";
 import Love from "./pages/Love";
 import Detail from "./pages/Detail";
+import MobileSearch from "./pages/MobileSearch";
+import Join from "./pages/Join";
 
 const router = createBrowserRouter([
   {
@@ -20,8 +22,12 @@ const router = createBrowserRouter([
         element: <Detail />,
       },
       {
-        path: "tv",
-        element: <Tv />,
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "join",
+        element: <Join />,
       },
       {
         path: "love",
@@ -30,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: "search",
         element: <Search />,
+      },
+      {
+        path: "msearch",
+        element: <MobileSearch />,
       },
     ],
   },
