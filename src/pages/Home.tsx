@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
+=======
+import React, { useState } from "react";
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
 import { getMovies, GetMoviesResult, Movie } from "../api";
 import { makeImagePath } from "../utils";
+<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
 import SliderComponent from "../components/Main/Slider";
 import TopSlider from "../components/Main/TopSlider";
@@ -10,6 +15,10 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Loading from "../components/Loading";
+=======
+import SliderComponent from "../components/Main/Slider";
+import TopSlider from "../components/Main/TopSlider";
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 
 const Container = styled.div`
   width: 100%;
@@ -36,9 +45,14 @@ const Banner = styled.div<{ $bgPhoto: string }>`
   padding: 60px;
   position: relative;
   background: linear-gradient(to left, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 1)),
+<<<<<<< HEAD
     url(${(props) => props.$bgPhoto}) center/cover no-repeat;
   overflow: hidden;
   cursor: pointer;
+=======
+    url(${(props) => props.bgPhoto}) center/cover no-repeat;
+  overflow: hidden;
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Title = styled.h2`
@@ -46,9 +60,12 @@ const Title = styled.h2`
   margin-bottom: 20px;
   color: ${(props) => props.theme.white.lighter};
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+<<<<<<< HEAD
   @media (max-width: 768px) {
     font-size: 40px;
   }
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Overview = styled.p`
@@ -58,6 +75,7 @@ const Overview = styled.p`
   line-height: 1.5;
   margin-bottom: 20px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+<<<<<<< HEAD
 
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -67,6 +85,19 @@ const Overview = styled.p`
 
   @media (max-width: 768px) {
     font-size: 20px;
+=======
+  animation: fadeIn 2s ease-in-out;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   }
 `;
 
@@ -93,22 +124,33 @@ const BannerButton = styled.button`
 `;
 
 const GenreSelectorWrapper = styled.div`
+<<<<<<< HEAD
   padding: 0 20px;
+=======
+  padding: 10px 20px;
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const GenreSelectorTitle = styled.h3`
   font-size: 24px;
   color: ${(props) => props.theme.white.lighter};
   margin-bottom: 40px;
+<<<<<<< HEAD
 
   @media (max-width: 768px) {
     font-size: 22px;
   }
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const GenreSelector = styled.div`
   display: flex;
+<<<<<<< HEAD
   gap: 20px;
+=======
+  gap: 10px;
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   margin: 10px;
   button {
     padding: 10px 20px;
@@ -119,11 +161,14 @@ const GenreSelector = styled.div`
     color: ${(props) => props.theme.white.lighter};
     cursor: pointer;
 
+<<<<<<< HEAD
     @media (max-width: 768px) {
       flex-wrap: wrap;
       font-size: 14px;
     }
 
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
     &:hover {
       background: ${(props) => props.theme.blue.darker};
     }
@@ -143,8 +188,11 @@ const Home = () => {
     queryFn: getMovies,
   });
 
+<<<<<<< HEAD
   const history = useNavigate();
 
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const filteredMovies = selectedGenre
     ? data?.results.filter((movie) =>
@@ -152,6 +200,7 @@ const Home = () => {
       )
     : null;
 
+<<<<<<< HEAD
   // 상세 페이지 이동
   const onDetail = (movieId: number) => {
     history(`/movies/${movieId}`);
@@ -176,6 +225,8 @@ const Home = () => {
   const [isDelayedLoading, setIsDelayedLoading] = useState<boolean>(true);
   const isCurrentlyLoading = isLoading || isDelayedLoading;
 
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   return (
     <Container>
       {isCurrentlyLoading ? (
@@ -186,6 +237,7 @@ const Home = () => {
         <>
           {data?.results[0] && (
             <>
+<<<<<<< HEAD
               <div style={{ overflow: "hidden" }}>
                 <Slider {...settings}>
                   {data.results.slice(0, 5).map((movie) => (
@@ -208,6 +260,21 @@ const Home = () => {
               <GenreSelectorWrapper>
                 <GenreSelectorTitle>
                   📚 오늘은 어떤 영화를 소개해드릴까요?
+=======
+              <Banner
+                bgPhoto={makeImagePath(data.results[0]?.backdrop_path || "")}
+              >
+                <Title>{data.results[0]?.original_title}</Title>
+                <Overview>{data.results[0]?.overview}</Overview>
+                <ButtonGroup>
+                  <BannerButton>▶ 더보기</BannerButton>
+                </ButtonGroup>
+              </Banner>
+
+              <GenreSelectorWrapper>
+                <GenreSelectorTitle>
+                  📚 오늘은 어떤 장르를 추천해드릴까요?
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
                 </GenreSelectorTitle>
                 <GenreSelector>
                   <button onClick={() => setSelectedGenre("28")}>액션🔥</button>
@@ -221,6 +288,23 @@ const Home = () => {
                 </GenreSelector>
               </GenreSelectorWrapper>
             </>
+<<<<<<< HEAD
+=======
+          )}
+
+          {selectedGenre && filteredMovies && (
+            <SliderComponent
+              movies={filteredMovies}
+              title={`🎥 오늘은 ${
+                {
+                  "28": "액션을",
+                  "35": "코미디를",
+                  "18": "드라마를",
+                  "27": "공포를",
+                }[selectedGenre]
+              } 추천해드릴게요😁`}
+            />
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
           )}
 
           {selectedGenre && filteredMovies && (

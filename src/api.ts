@@ -137,6 +137,7 @@ export const getCredits = (movieId: number) => {
   );
 };
 
+<<<<<<< HEAD
 //사람 정보
 export const getperson = (personId: number) => {
   return fetch(
@@ -144,6 +145,8 @@ export const getperson = (personId: number) => {
   ).then((response) => response.json());
 };
 
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 // 특정 장르의 영화 목록
 export const searchMoviesByGenre = (genreId: number) => {
   return fetch(
@@ -154,11 +157,16 @@ export const searchMoviesByGenre = (genreId: number) => {
 };
 
 //id대조 영화값
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 export const getIdDetaile = (movieId: number) => {
   return fetch(`${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}`).then(
     (response) => response.json()
   );
 };
+<<<<<<< HEAD
 
 // 자동 완성
 export const getAutocompleteResults = (keyword: string | null) => {
@@ -176,3 +184,5 @@ export const getPopularMovies = () => {
     .then((response) => response.json())
     .then((data) => data.results || []);
 };
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9

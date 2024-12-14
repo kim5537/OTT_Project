@@ -63,9 +63,15 @@ const StyledSlider = styled(Slider)`
   }
 `;
 
+<<<<<<< HEAD
 const Box = styled.div<{ $bgPhoto: string }>`
   height: 160px;
   background: url(${(props) => props.$bgPhoto}) center/cover no-repeat;
+=======
+const Box = styled.div<{ bgPhoto: string }>`
+  height: 160px;
+  background: url(${(props) => props.bgPhoto}) center/cover no-repeat;
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   border-radius: 4px;
   cursor: pointer;
   position: relative;
@@ -112,14 +118,22 @@ const Info = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
+<<<<<<< HEAD
   width: 104%;
+=======
+  width: 100%;
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   color: ${(props) => props.theme.white.lighter};
   padding: 20px;
   opacity: 0;
+<<<<<<< HEAD
   transition: opacity 0.5s ease-in-out;
+=======
+  transition: opacity 0.4s ease-in-out;
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 
   ${Box}:hover & {
     opacity: 1;
@@ -201,14 +215,29 @@ const SliderComponent: React.FC<SliderProps> = ({ movies, title }) => {
     fetchCertifications();
   }, [movies]);
 
+<<<<<<< HEAD
   const settings = {
     dots: false,
     infinite: true,
+=======
+  useEffect(() => {
+    localStorage.setItem("favoriteMovies", JSON.stringify(favoriteMovies));
+  }, [favoriteMovies]);
+
+  const settings = {
+    dots: false,
+    infinite: false,
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
     speed: 500,
     centerMode: false,
     slidesToShow: 6,
     slidesToScroll: 1,
+<<<<<<< HEAD
 
+=======
+    nextArrow: <div>▶</div>,
+    prevArrow: <div>◀</div>,
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 4 } },
       { breakpoint: 768, settings: { slidesToShow: 2 } },
@@ -220,6 +249,7 @@ const SliderComponent: React.FC<SliderProps> = ({ movies, title }) => {
   };
 
   const toggleFavorite = (movieId: number) => {
+<<<<<<< HEAD
     // 로컬스토리지에서 현재 즐겨찾기 데이터 가져오기
     const savedFavorites = localStorage.getItem("favoriteMovies");
     const movieIds = savedFavorites ? JSON.parse(savedFavorites) : [];
@@ -234,6 +264,13 @@ const SliderComponent: React.FC<SliderProps> = ({ movies, title }) => {
 
     // 상태 업데이트
     setFavoriteMovies(updatedFavorites);
+=======
+    setFavoriteMovies((prevFavorites) =>
+      prevFavorites.includes(movieId)
+        ? prevFavorites.filter((id) => id !== movieId)
+        : [...prevFavorites, movieId]
+    );
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   };
 
   if (!movies || movies.length === 0) {
@@ -247,10 +284,17 @@ const SliderComponent: React.FC<SliderProps> = ({ movies, title }) => {
         {movies.map((movie) => (
           <Box
             key={movie.id}
+<<<<<<< HEAD
             $bgPhoto={
               movie.backdrop_path
                 ? makeImagePath(movie.backdrop_path)
                 : "/placeholder-image.jpg"
+=======
+            bgPhoto={
+              movie.backdrop_path
+                ? makeImagePath(movie.backdrop_path)
+                : "/placeholder-image.jpg" // 기본 이미지 경로
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
             }
           >
             <Overlay>
@@ -277,7 +321,11 @@ const SliderComponent: React.FC<SliderProps> = ({ movies, title }) => {
                 />
               </div>
               <div className="info-rating">
+<<<<<<< HEAD
                 ⭐ {movie.vote_average.toFixed(1)} / 10 | 👍
+=======
+                ⭐ {movie.vote_average.toFixed(1)} / 10 | 👍{" "}
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
                 {movie.vote_count.toLocaleString()} likes
               </div>
             </Info>

@@ -1,12 +1,18 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import theme from "./theme";
+<<<<<<< HEAD
 import styled from "styled-components";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import MobileHeader from "./components/MobileHeader";
 import Header from "./components/Main/Header";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+=======
+import Header from "./components/Main/Header";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 
 const GlobalStyle = createGlobalStyle`
   @font-face {

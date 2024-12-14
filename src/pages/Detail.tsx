@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   getVideos,
   getMovies,
@@ -5,6 +6,9 @@ import {
   getIdDetaile,
   IdMovie,
 } from "../api";
+=======
+import { getVideos, getIdDetaile, IdMovie } from "../api";
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import YouTube from "react-youtube";
@@ -116,12 +120,15 @@ const Detail = () => {
     };
   }, []);
 
+<<<<<<< HEAD
   // //영화데이터들
   // const { data, isLoading } = useQuery<GetMoviesResult>({
   //   queryKey: ["nowMovie"],
   //   queryFn: getMovies,
   // });
 
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   //영화 id 데이터
   const { data: nowMovie, isLoading } = useQuery<IdMovie>({
     queryKey: ["movieData", movieId],
@@ -130,6 +137,7 @@ const Detail = () => {
       return await getIdDetaile(movieId);
     },
   });
+<<<<<<< HEAD
   // console.log("movieId", movieId);
   console.log("nowMovie", nowMovie);
   // const nowMovieId = nowMovie?.id;
@@ -142,6 +150,8 @@ const Detail = () => {
   // const nowMovieId = data?.results.filter(
   //   (movie) => String(movie.id) === movieId
   // )[0].id;
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 
   // 영화 유투브
   const { data: video, isLoading: videoLoding } = useQuery({

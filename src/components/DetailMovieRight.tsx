@@ -1,7 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+<<<<<<< HEAD
 import { ReviewResult, getCertification, getReviews, IdMovie } from "../api";
+=======
+import { ReviewResult, searchGeneres, getReviews, IdMovie } from "../api";
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 import { useQuery } from "@tanstack/react-query";
 
 const RightWrap = styled.div`
@@ -74,7 +78,10 @@ const Box = styled.div`
   align-items: center;
   overflow: hidden;
   text-align: center;
+<<<<<<< HEAD
   cursor: pointer;
+=======
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 // 리뷰
@@ -181,6 +188,7 @@ const DetailMovieRight = ({
       x: -window.innerWidth - 10,
     },
   };
+<<<<<<< HEAD
 
   const [certifications, setCertifications] = useState<Record<number, string>>(
     {}
@@ -204,6 +212,9 @@ const DetailMovieRight = ({
     }
   }, [nowMovie]);
 
+=======
+  console.log(nowMovie?.genres);
+>>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   return (
     <RightWrap>
       <Title>{nowMovie?.title}</Title>
