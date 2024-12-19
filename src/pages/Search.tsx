@@ -17,12 +17,9 @@ const Container = styled.div`
   background: ${(props) => props.theme.black.lighter};
   padding: 20px;
   padding-left: 50px;
-<<<<<<< HEAD
   @media (max-width: 768px) {
     padding: 0;
   }
-=======
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Header = styled.div`
@@ -30,7 +27,6 @@ const Header = styled.div`
   margin-bottom: 60px;
   padding-left: 30px;
   color: ${(props) => props.theme.white.darker};
-<<<<<<< HEAD
 
   @media (max-width: 768px) {
     margin: 40px;
@@ -46,16 +42,11 @@ const Header = styled.div`
     @media (max-width: 400px) {
       font-size: 20px;
     }
-=======
-  h1 {
-    font-size: 28px;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   }
 `;
 
 const MovieGrid = styled.div`
   display: flex;
-<<<<<<< HEAD
   padding-left: 30px;
   flex-wrap: wrap;
   gap: 50px;
@@ -66,12 +57,6 @@ const MovieGrid = styled.div`
   @media (max-width: 400px) {
     gap: 10px;
   }
-=======
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 50px;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const MovieCard = styled.div`
@@ -87,7 +72,6 @@ const MovieCard = styled.div`
   &:hover {
     transform: scale(1.05);
   }
-<<<<<<< HEAD
 
   @media (max-width: 768px) {
     width: 200px;
@@ -96,8 +80,6 @@ const MovieCard = styled.div`
   @media (max-width: 400px) {
     width: 160px;
   }
-=======
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const MoviePoster = styled.img`
@@ -141,15 +123,11 @@ const Overlay = styled.div`
 const StyledPagination = styled.div`
   display: flex;
   justify-content: center;
-<<<<<<< HEAD
   padding-top: 100px;
 
   @media (max-width: 768px) {
     padding-top: 50px;
   }
-=======
-  margin: 100px auto;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   ul {
     display: flex;
     list-style: none;
@@ -220,7 +198,6 @@ const Search = () => {
     setCurrentPage(pageNumber);
   };
 
-<<<<<<< HEAD
   const onDetail = async (movieId: number | undefined) => {
     // 데이터가 없는 경우
     if (!movieData || Object.keys(movieData).length === 0) {
@@ -241,32 +218,12 @@ const Search = () => {
         </Header>
       </Container>
     );
-=======
-  const onDetail = (movieId: number | undefined) => {
-    if (!movieId) {
-      console.error("Invalid movie ID:", movieId);
-      return;
-    }
-    navigate(`/movies/${movieId}`);
-  };
-
-  if (movieLoading) {
-    return <div>Loading...</div>;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   }
 
   return (
     <Container>
       <Header>
-<<<<<<< HEAD
         <h1>검색어 "{keyword}"에 대한 결과입니다.</h1>
-=======
-        {keyword ? (
-          <h1>검색어 "{keyword}"에 대한 결과입니다.</h1>
-        ) : (
-          <h1>검색어를 입력해주세요!</h1>
-        )}
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
       </Header>
       <MovieGrid>
         {currentMovies.map((movie) => (

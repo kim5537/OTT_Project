@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeImagePath } from "../../utils";
@@ -9,28 +8,15 @@ interface Movie {
   id: number;
   title: string;
   backdrop_path: string | null;
-=======
-import React from "react";
-import styled from "styled-components";
-import { makeImagePath } from "../../utils";
-import { useNavigate } from "react-router-dom";
-import { Movie } from "../../api";
-
-interface Top10SliderProps {
-  movies: any[];
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 }
 
 const Container = styled.div`
   width: 100%;
   position: relative;
   margin-top: 30px;
-<<<<<<< HEAD
   @media (max-width: 768px) {
     display: none;
   }
-=======
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Title = styled.h3`
@@ -38,7 +24,6 @@ const Title = styled.h3`
   margin-bottom: 20px;
   color: ${(props) => props.theme.white.lighter};
   padding-left: 20px;
-<<<<<<< HEAD
 `;
 
 const SliderWrapper = styled.div`
@@ -48,28 +33,10 @@ const SliderWrapper = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-=======
-
-  @media (max-width: 768px) {
-    font-size: 20px;
-    padding-left: 10px;
-  }
-`;
-
-const SliderWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 50px;
-  overflow-x: hidden;
-  overflow-y: hidden;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 
   @media (max-width: 1024px) {
     gap: 30px;
   }
-<<<<<<< HEAD
 `;
 
 const Box = styled.div<{ $bgPhoto: string }>`
@@ -77,19 +44,6 @@ const Box = styled.div<{ $bgPhoto: string }>`
   width: 200px;
   height: 300px;
   background: url(${(props) => props.$bgPhoto}) center/cover no-repeat;
-=======
-
-  @media (max-width: 768px) {
-    gap: 20px;
-  }
-`;
-
-const Box = styled.div<{ bgPhoto: string }>`
-  position: relative;
-  width: 200px;
-  height: 300px;
-  background: url(${(props) => props.bgPhoto}) center/cover no-repeat;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
   cursor: pointer;
@@ -103,19 +57,6 @@ const Box = styled.div<{ bgPhoto: string }>`
     width: 180px;
     height: 270px;
   }
-<<<<<<< HEAD
-=======
-
-  @media (max-width: 768px) {
-    width: 150px;
-    height: 220px;
-  }
-
-  @media (max-width: 480px) {
-    width: 120px;
-    height: 180px;
-  }
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Rank = styled.div`
@@ -130,17 +71,6 @@ const Rank = styled.div`
   @media (max-width: 1024px) {
     font-size: 80px;
   }
-<<<<<<< HEAD
-=======
-
-  @media (max-width: 768px) {
-    font-size: 60px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 40px;
-  }
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Overlay = styled.div`
@@ -164,19 +94,6 @@ const Overlay = styled.div`
     font-size: 12px;
   }
 
-<<<<<<< HEAD
-=======
-  @media (max-width: 768px) {
-    font-size: 10px;
-    padding: 8px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 8px;
-    padding: 5px;
-  }
-
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   span {
     display: inline-block;
     background-color: ${(props) => props.theme.blue.lighter};
@@ -189,7 +106,6 @@ const Overlay = styled.div`
     @media (max-width: 1024px) {
       font-size: 10px;
     }
-<<<<<<< HEAD
   }
 `;
 
@@ -213,30 +129,10 @@ const TopSlider: React.FC = () => {
   // 상세 페이지 이동
   const onDetail = (movieId: number) => {
     navigate(`/movies/${movieId}`);
-=======
-
-    @media (max-width: 768px) {
-      font-size: 8px;
-    }
-
-    @media (max-width: 480px) {
-      font-size: 6px;
-    }
-  }
-`;
-
-const TopSlider: React.FC<Top10SliderProps> = ({ movies }) => {
-  const history = useNavigate();
-
-  // 상세 페이지 이동
-  const onDetail = ({ movie }: { movie: Movie }) => {
-    history(`/movies/${movie.id}`);
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   };
 
   return (
     <Container>
-<<<<<<< HEAD
       <Title>👑 오늘 대한민국의 TOP 6 영화</Title>
       <SliderWrapper>
         {movies.map((movie, index) => (
@@ -249,20 +145,6 @@ const TopSlider: React.FC<Top10SliderProps> = ({ movies }) => {
             <Overlay>
               <div>{movie.title || "제목 없음"}</div>
               <span>{index === 0 ? "최신 등록" : "인기 영화"}</span>
-=======
-      <Title>👑 오늘 대한민국의 TOP 6 시리즈</Title>
-      <SliderWrapper>
-        {movies.slice(0, 6).map((movie, index) => (
-          <Box
-            onClick={() => onDetail({ movie })}
-            key={movie.id}
-            bgPhoto={makeImagePath(movie.backdrop_path || "")}
-          >
-            <Rank>{index + 1}</Rank>
-            <Overlay>
-              <div>{movie.title}</div>
-              <span>{index === 0 ? "최신 등록" : "새로운 에피소드"}</span>
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
             </Overlay>
           </Box>
         ))}

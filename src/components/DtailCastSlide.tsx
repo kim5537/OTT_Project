@@ -139,6 +139,7 @@ const DtailCastSlide = ({
   });
   //출연진 슬라이드
   const toggleCrew = () => setLeavingCrew((prev) => !prev);
+
   const crewIndexFn = async (bt: string) => {
     if (credits) {
       //사용할 data 값 - 15명의 배우들

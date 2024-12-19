@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
 import { Movie, getMovies, getCertification } from "../api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,17 +13,6 @@ const Container = styled.div`
   @media (max-width: 768px) {
     padding: 0;
   }
-=======
-import SliderComponent from "../components/Main/Slider";
-import { useNavigate } from "react-router-dom";
-import { Movie, getMovies } from "../api";
-
-const Container = styled.div`
-  width: 100%;
-  background: ${(props) => props.theme.black.lighter};
-  padding: 30px;
-  height: 100vh;
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Title = styled.h2`
@@ -32,18 +20,14 @@ const Title = styled.h2`
   margin-top: 100px;
   padding-left: 30px;
   margin-bottom: 40px;
-<<<<<<< HEAD
   @media (max-width: 768px) {
     margin-top: 40px;
   }
-=======
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 `;
 
 const Message = styled.div`
   color: ${(props) => props.theme.white.darker};
   font-size: 18px;
-<<<<<<< HEAD
   padding-left: 40px;
   margin-top: 50px;
 `;
@@ -152,15 +136,6 @@ const Love = () => {
   const [certifications, setCertifications] = useState<Record<number, string>>(
     {}
   );
-=======
-  text-align: center;
-  margin-top: 50px;
-`;
-
-const Love = () => {
-  const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]); // 타입 지정
-  const navigate = useNavigate();
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
 
   useEffect(() => {
     const fetchFavoriteMovies = async () => {
@@ -178,7 +153,6 @@ const Love = () => {
     fetchFavoriteMovies();
   }, []);
 
-<<<<<<< HEAD
   useEffect(() => {
     const fetchCertifications = async () => {
       const results: Record<number, string> = {};
@@ -198,14 +172,10 @@ const Love = () => {
     fetchCertifications();
   }, [favoriteMovies]);
 
-=======
-  // 영화 클릭 시 상세 페이지로 이동
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
   const handleMovieClick = (movieId: number) => {
     navigate(`/movies/${movieId}`);
   };
 
-<<<<<<< HEAD
   const toggleFavorite = (movieId: number) => {
     setFavoriteMovies((prevFavorites) => {
       const updatedFavorites = prevFavorites.filter(
@@ -253,16 +223,6 @@ const Love = () => {
           </MovieGrid>
         ) : (
           <Message>즐겨찾는 영화가 없습니다.</Message>
-=======
-  return (
-    <Container>
-      <Title>내가 즐겨찾는 프로그램</Title>
-      <div>
-        {favoriteMovies.length > 0 ? (
-          <SliderComponent movies={favoriteMovies} onClick={handleMovieClick} />
-        ) : (
-          <Message>즐겨찾기한 영화가 없습니다.</Message>
->>>>>>> 1bee319d09bb4168ef218489fb59a49adfa5acd9
         )}
       </div>
     </Container>
