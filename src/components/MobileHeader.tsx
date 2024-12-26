@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -46,6 +46,42 @@ const NavItem = styled.div<{ isActive: boolean }>`
 const MobileHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    localStorage.removeItem("users");
+
+    // 상태 변경
+    setIsLoggedIn(false);
+
+    // 사용자 정의 이벤트 트리거
+    window.dispatchEvent(new Event("user-logout"));
+
+    alert("로그아웃 되었습니다.");
+    navigate("/");
+  };
+
+  // 로컬스토리지 및 사용자 정의 이벤트 처리
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedUsers = localStorage.getItem("users");
+      setIsLoggedIn(!!storedUsers);
+    };
+
+    // storage 이벤트 및 사용자 정의 이벤트 리스너 등록
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("user-logout", handleStorageChange);
+
+    // 초기 상태 확인
+    handleStorageChange();
+
+    return () => {
+      // 리스너 해제
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("user-logout", handleStorageChange);
+    };
+  }, []);
 
   return (
     <HeaderContainer>
@@ -70,13 +106,20 @@ const MobileHeader = () => {
         <FontAwesomeIcon icon={faHeart} />
         <span>즐겨찾기</span>
       </NavItem>
-      <NavItem
-        isActive={location.pathname === "/login"}
-        onClick={() => navigate("/login")}
-      >
-        <FontAwesomeIcon icon={faUser} />
-        <span>로그인</span>
-      </NavItem>
+      {isLoggedIn ? (
+        <NavItem isActive={false} onClick={handleLogout}>
+          <FontAwesomeIcon icon={faUser} />
+          <span>로그아웃</span>
+        </NavItem>
+      ) : (
+        <NavItem
+          isActive={location.pathname === "/login"}
+          onClick={() => navigate("/login")}
+        >
+          <FontAwesomeIcon icon={faUser} />
+          <span>로그인</span>
+        </NavItem>
+      )}
     </HeaderContainer>
   );
 };

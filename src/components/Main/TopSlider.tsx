@@ -2,18 +2,17 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { makeImagePath } from "../../utils";
 import { useNavigate } from "react-router-dom";
-import { getPopularMovies } from "../../api";
-
-interface Movie {
-  id: number;
-  title: string;
-  backdrop_path: string | null;
-}
+import { getPopularMovies, Movie } from "../../api";
 
 const Container = styled.div`
   width: 100%;
   position: relative;
-  margin-top: 30px;
+  margin-top: 50px;
+  margin-bottom: 100px;
+  padding: 0 40px;
+  &:focus {
+    outline: none;
+  }
   @media (max-width: 768px) {
     display: none;
   }
@@ -21,7 +20,7 @@ const Container = styled.div`
 
 const Title = styled.h3`
   font-size: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: ${(props) => props.theme.white.lighter};
   padding-left: 20px;
 `;
@@ -32,19 +31,25 @@ const SliderWrapper = styled.div`
   justify-content: space-evenly;
   align-items: center;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 25px;
 
   @media (max-width: 1024px) {
     gap: 30px;
   }
 `;
 
-const Box = styled.div<{ $bgPhoto: string }>`
+const Box = styled.div<{
+  $bgPhoto: string;
+  $isFocused: boolean;
+  $isUsingRemote: boolean;
+}>`
   position: relative;
   width: 200px;
   height: 300px;
   background: url(${(props) => props.$bgPhoto}) center/cover no-repeat;
   border-radius: 8px;
+  border: ${(props) =>
+    props.$isUsingRemote && props.$isFocused ? "4px solid #FFD700" : "none"};
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
@@ -111,8 +116,41 @@ const Overlay = styled.div`
 
 const TopSlider: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState<number>(0);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [isUsingRemote] = useState<boolean>(false);
 
+  // 리모컨 핸들러
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isFocused) return; // 슬라이더에 포커스가 있을 때만 동작
+
+      switch (event.key) {
+        case "ArrowRight":
+          setFocusedIndex((prev) => Math.min(prev + 1, movies.length - 1));
+          break;
+
+        case "ArrowLeft":
+          setFocusedIndex((prev) => Math.max(prev - 1, 0));
+          break;
+
+        case "Enter":
+          navigate(`/movies/${movies[focusedIndex].id}`);
+          break;
+
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFocused, movies, focusedIndex, navigate]);
+
+  //영화데이터
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -132,14 +170,27 @@ const TopSlider: React.FC = () => {
   };
 
   return (
-    <Container>
-      <Title>👑 오늘 대한민국의 TOP 6 영화</Title>
+    <Container
+      tabIndex={0}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => {
+        setIsFocused(false);
+        setFocusedIndex(0);
+      }}
+    >
+      <Title>오늘 대한민국의 TOP 6 영화</Title>
       <SliderWrapper>
         {movies.map((movie, index) => (
           <Box
             onClick={() => onDetail(movie.id)}
+            tabIndex={0}
             key={movie.id}
+            $isFocused={index === focusedIndex}
+            $isUsingRemote={isUsingRemote}
             $bgPhoto={makeImagePath(movie.backdrop_path || "")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onDetail(movie.id);
+            }}
           >
             <Rank>{index + 1}</Rank>
             <Overlay>

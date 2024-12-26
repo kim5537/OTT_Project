@@ -9,6 +9,7 @@ const Title = styled.h3`
   color: ${({ theme }) => theme.white.lighter};
   word-break: keep-all;
   margin-top: 10px;
+  font-weight: 400;
 `;
 const Wrap = styled(motion.div)``;
 
@@ -130,13 +131,14 @@ const DtailCastSlide = ({
   }, [reSize, middleSize]);
 
   //영화 출연진
-  const { data: credits, isLoading: creditsLoding } = useQuery({
+  const { data: credits } = useQuery({
     queryKey: ["credits", nowMovieId],
     queryFn: async () => {
       if (!nowMovieId) return { results: [] };
       return await getCredits(nowMovieId);
     },
   });
+
   //출연진 슬라이드
   const toggleCrew = () => setLeavingCrew((prev) => !prev);
 
@@ -204,11 +206,13 @@ const DtailCastSlide = ({
                       <img
                         src={makeImagePath(cast.profile_path)}
                         width={"140px"}
+                        alt="profile"
                       />
                     ) : (
                       <img
                         src={`${process.env.PUBLIC_URL}/nonImg.jpg`}
                         width={"140px"}
+                        alt="nonprofile"
                       />
                     )}
                   </Box>

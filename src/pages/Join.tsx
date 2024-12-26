@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { ReactComponent as VivaPlayLogo } from "../vivaplay.svg";
 import { useNavigate } from "react-router-dom";
+import { ReactComponent as VivaPlayLogo } from "../vivaplay.svg";
+import { Helmet } from "react-helmet";
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background: url("/cupang.jpg") center/cover no-repeat;
   display: flex;
   flex-direction: column;
@@ -22,62 +23,36 @@ const Wrapper = styled.div`
     background-color: rgba(0, 0, 0, 0.6);
     z-index: 1;
   }
-  @media (max-width: 768px) {
-    width: 100%;
-    overflow-x: hidden;
-  }
 `;
 
 const Containe = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-content: center;
+  align-items: center;
   z-index: 2;
-  border-radius: 8px;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(7px);
-  padding: 30px 20px 40px;
+  padding: 30px 100px;
+  border-radius: 8px;
 
   @media (max-width: 768px) {
-    padding: 20px 30px;
+    padding: 40px;
   }
 `;
 
-const Form = styled.form<{ highlight?: boolean }>`
+const Form = styled.form`
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  gap: 10px;
-  z-index: 2;
-
-  & > div {
-    display: flex;
-    gap: 6px;
-    margin-left: 4px;
-
-    &:nth-of-type(1) {
-      margin-top: 8px;
-    }
-    & > input {
-      cursor: pointer;
-    }
-    & > label {
-      color: ${(props) => props.theme.white.lighter};
-      font-size: ${(props) => (props.highlight ? "1rem" : "0.9rem")};
-      font-weight: ${(props) => (props.highlight ? "bold" : "100")};
-      cursor: pointer;
-    }
-  }
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
 `;
 
 const Logo = styled.div`
   cursor: pointer;
   display: flex;
   justify-content: center;
-  align-items: center;
-
-  z-index: 3;
   svg {
     width: 100px;
     height: 100px;
@@ -85,216 +60,182 @@ const Logo = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 32px;
-  color: #fff;
-  margin: 0 auto;
-  margin-bottom: 20px;
-  @media (max-width: 768px) {
-    margin-top: 4px;
-    font-size: 28px;
-  }
+  font-size: 28px;
+  color: ${(props) => props.theme.white.lighter};
+  letter-spacing: 3px;
+`;
+
+const Subtitle = styled.p`
+  font-size: 16px;
+  color: ${(props) => props.theme.white.darker};
+  text-align: center;
+  line-height: 1.7;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
 `;
 
 const StyledInput = styled.input`
-  padding: 20px 200px;
-  padding-left: 20px;
+  width: 350px;
+  padding: 20px;
+  padding-left: 10px;
   background: #181a21;
   border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
+  border-radius: 8px;
+  color: ${(props) => props.theme.white.lighter};
+  font-size: 14px;
+
   &::placeholder {
-    font-size: 16px;
-    font-weight: 500;
-    color: #fff;
+    color: ${(props) => props.theme.white.darker};
   }
-  &:focus {
-    outline: none;
-  }
-  @media (max-width: 768px) {
-    padding: 20px 40px;
-    padding-left: 20px;
-  }
+`;
+
+const ErrorMessage = styled.span`
+  width: 100%;
+  padding-left: 10px;
+  color: crimson;
+  font-size: 14px;
+  letter-spacing: 2px;
+  font-weight: bold;
 `;
 
 const Button = styled.button`
-  width: 100%;
-  height: 60px;
-  background: ${(props) => props.theme.blue.darker};
+  width: 350px;
+  padding: 14px;
+  font-size: 16px;
   color: #fff;
+  background-color: ${(props) => (props.disabled ? "gray" : "#007bff")};
   border: none;
-  font-size: 20px;
-  line-height: 1.2;
-  border-radius: 10px;
-  transition: all 0.3s;
-  margin-top: 20px;
-  cursor: pointer;
-  &:hover {
-    background: ${(props) => props.theme.blue.lighter};
-  }
-  &:disabled {
-    background: gray;
-    cursor: not-allowed;
-  }
+  border-radius: 8px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  transition: background-color 0.3s;
 `;
 
 const Join: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [id, setId] = useState(""); // 변수명 변경
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [checkboxes, setCheckboxes] = useState({
-    all: false,
-    agree: false,
-    event: false,
-    gift: false,
-  });
-  const navigate = useNavigate();
-  const [emailError, setEmailError] = useState("");
+  const [idError, setIdError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const navigate = useNavigate();
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    const isValid = /\S+@\S+\.\S+/.test(e.target.value);
-    setEmailError(isValid ? "" : "이메일 형식을 확인해주세요.");
+  const hashPassword = async (password: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hashBuffer))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    if (confirmPassword && e.target.value !== confirmPassword) {
+  const validateId = (value: string) => {
+    const isValid = /^[a-zA-Z0-9]+$/.test(value);
+    if (!value) {
+      setIdError("아이디를 입력해주세요.");
+    } else if (!isValid) {
+      setIdError("아이디는 영어와 숫자만 입력할 수 있습니다.");
+    } else if (value.length < 6) {
+      setIdError("아이디는 6자리 이상이어야 합니다.");
+    } else {
+      setIdError("");
+    }
+  };
+
+  const validatePassword = (value: string) => {
+    if (value.length < 8) {
+      setPasswordError("비밀번호는 8자리 이상이어야 합니다.");
+    } else if (confirmPassword && value !== confirmPassword) {
       setPasswordError("비밀번호가 일치하지 않습니다.");
     } else {
       setPasswordError("");
     }
   };
 
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setConfirmPassword(e.target.value);
-    if (password && e.target.value !== password) {
-      setPasswordError("비밀번호가 일치하지 않습니다.");
-    } else {
-      setPasswordError("");
-    }
-  };
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    if (name === "all") {
-      setCheckboxes({
-        all: checked,
-        agree: checked,
-        event: checked,
-        gift: checked,
-      });
-    } else {
-      setCheckboxes((prev) => ({ ...prev, [name]: checked }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isFormValid) {
+
+    if (!idError && !passwordError) {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const isDuplicate = users.some((user: any) => user.id === id);
+      if (isDuplicate) {
+        alert("이미 존재하는 아이디입니다.");
+        return;
+      }
+
+      const hashedPassword = await hashPassword(password);
+      users.push({ id, password: hashedPassword });
+      localStorage.setItem("users", JSON.stringify(users));
       alert("회원가입이 완료되었습니다!");
       navigate("/login");
     }
   };
 
-  const handleLogo = () => {
-    navigate("/");
-  };
-
   const isFormValid =
-    email && password && !emailError && !passwordError && checkboxes.agree;
+    /^[a-zA-Z0-9]+$/.test(id) &&
+    id.length >= 6 &&
+    password.length >= 8 &&
+    confirmPassword === password &&
+    !idError &&
+    !passwordError;
 
   return (
-    <Wrapper>
-      <Containe>
-        <Logo onClick={handleLogo}>
-          <VivaPlayLogo />
-        </Logo>
-        <Form onSubmit={handleSubmit}>
-          <Title>회원가입</Title>
-          <StyledInput
-            type="text"
-            placeholder="이메일"
-            value={email}
-            onChange={handleEmailChange}
-            required
-          />
-          {emailError && (
-            <span style={{ color: "red", marginLeft: "4px" }}>
-              {emailError}
-            </span>
-          )}
-          <StyledInput
-            type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-          <StyledInput
-            type="password"
-            placeholder="비밀번호 확인"
-            value={confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            required
-          />
-          {passwordError && (
-            <span style={{ color: "red", marginLeft: "4px" }}>
-              {passwordError}
-            </span>
-          )}
-          <div>
-            <input
-              type="checkbox"
-              name="all"
-              id="all"
-              checked={checkboxes.all}
-              onChange={handleCheckboxChange}
+    <>
+      <Helmet>
+        <title>ViVaPlay</title>
+        <meta property="og:title" content="영화의 즐거움을 담아, VIVA Play" />
+        <meta
+          property="og:description"
+          content="즐거움이 가득한 VIVA Play에 가입하여여 다양한 영화를 만나보세요"
+        />
+        <meta
+          property="og:image"
+          content={`${process.env.PUBLIC_URL}/vivamain.png`}
+        />
+      </Helmet>
+      <Wrapper>
+        <Containe>
+          <Logo onClick={() => navigate("/")}>
+            <VivaPlayLogo />
+          </Logo>
+          <Form onSubmit={handleSubmit}>
+            <Title>회원가입</Title>
+            <Subtitle>
+              비바플레이와 함께 새로운 경험을 시작하세요.
+              <br />
+              당신의 즐거운 순간을 더욱 빛나게 만들어 드립니다.
+            </Subtitle>
+            <StyledInput
+              type="text"
+              placeholder="아이디 (영어 6자리 이상)"
+              value={id}
+              onChange={(e) => {
+                setId(e.target.value.trim());
+                validateId(e.target.value.trim());
+              }}
             />
-            <label htmlFor="all" data-highlight="true">
-              약관동의
-            </label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              name="agree"
-              id="agree"
-              checked={checkboxes.agree}
-              onChange={handleCheckboxChange}
+            {idError && <ErrorMessage>{idError}</ErrorMessage>}
+            <StyledInput
+              type="password"
+              placeholder="비밀번호 (8자리 이상)"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value.trim());
+                validatePassword(e.target.value.trim());
+              }}
             />
-            <label htmlFor="agree">개인정보 수집 및 이용에 대한 안내</label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              name="event"
-              id="event"
-              checked={checkboxes.event}
-              onChange={handleCheckboxChange}
+            <StyledInput
+              type="password"
+              placeholder="비밀번호 확인"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value.trim())}
             />
-            <label htmlFor="event">이벤트 / 마케팅 수신 동의 (선택)</label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              name="gift"
-              id="gift"
-              checked={checkboxes.gift}
-              onChange={handleCheckboxChange}
-            />
-            <label htmlFor="gift">혜택 알림 수신 동의 (선택)</label>
-          </div>
-          <Button type="submit" disabled={!isFormValid}>
-            회원가입
-          </Button>
-        </Form>
-      </Containe>
-    </Wrapper>
+            {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
+            <Button type="submit" disabled={!isFormValid}>
+              가입하기
+            </Button>
+          </Form>
+        </Containe>
+      </Wrapper>
+    </>
   );
 };
 

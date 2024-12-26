@@ -1,38 +1,12 @@
 import { ReactComponent as VivaPlayLogo } from "../vivaplay.svg";
 import styled, { keyframes } from "styled-components";
 
-const wave = keyframes`
-  0% { x: -400px; }
-  100% { x: 0; }
-`;
-
-const logoFill = keyframes`
-  0% {
-    transform: translateY(0px) rotate(20deg);
-  }
-  25% {
-    transform: translateY(-70px) translatex(100px)  rotate(10deg);
-  }
-  50% {
-    transform: translateY(-100px) rotate(-15deg);
-  }
-  65% {
-    transform: translateY(-120px)  translatex(-100px)  rotate(0deg);
-  }
-  90% {
-    transform: translateY(-180px)  translatex(0px)  rotate(15deg);
-  }
-  100% {
-    transform: translateY(-180px)  translatex(0px)  rotate(10deg);
-  }
-`;
-
 const move = keyframes`
   0% {
     transform: translateY(0) rotate(90deg);
   }
   50% {
-    transform:  translateY(-10%) rotate(180deg);
+    transform: translateY(-10%) rotate(180deg);
   }
   100% {
     transform: translateY(-20%) rotate(360deg);
@@ -57,6 +31,17 @@ const move2 = keyframes`
   }
 `;
 
+const textGlow = keyframes`
+  0%, 100% {
+    text-shadow: 0 0 10px #ffffff, 0 0 20px #0078ff, 0 0 30px #0078ff, 0 0 40px #0078ff;
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 15px #ffffff, 0 0 30px #0078ff, 0 0 45px #0078ff, 0 0 60px #0078ff;
+    opacity: 0.8;
+  }
+`;
+
 const Container = styled.div`
   position: fixed;
   width: 100vw;
@@ -67,6 +52,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
 `;
+
 const Inner = styled.div`
   position: fixed;
   width: 100vw;
@@ -76,6 +62,7 @@ const Inner = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 `;
 
 const Wrapper = styled.div`
@@ -104,28 +91,36 @@ const Wrapper = styled.div`
   }
 
   .wave-two {
-    width: 800px;
-    height: 800px;
+    width: 700px;
+    height: 700px;
     position: absolute;
-    bottom: -250%;
+    bottom: -200%;
     left: -90%;
     border-radius: 55%;
-    /* background: #2954cc; */
     background: black;
-    animation: ${move} 5s infinite linear;
+    animation: ${move} 3s infinite linear;
     z-index: -20;
   }
+
   .wave-one {
-    width: 800px;
-    height: 800px;
+    width: 700px;
+    height: 700px;
     position: absolute;
-    bottom: -90%;
+    bottom: -70%;
     left: -150%;
     border-radius: 40%;
     background: black;
-    animation: ${move2} 6s infinite linear;
+    animation: ${move2} 4s infinite linear;
     z-index: 8;
   }
+`;
+
+const LoadingText = styled.div`
+  font-size: 30px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 10px;
+  animation: ${textGlow} 2s infinite;
 `;
 
 const Loading = () => {
@@ -138,6 +133,7 @@ const Loading = () => {
           <div className="wave-two"></div>
           <VivaPlayLogo className="logostroke" />
         </Wrapper>
+        <LoadingText>VIVAPLAY</LoadingText>
       </Inner>
     </Container>
   );

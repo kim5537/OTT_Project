@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { motion, useAnimation, useScroll } from "framer-motion";
-import { Link, useMatch, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 import { ReactComponent as VivaPlayLogo } from "../../vivaplay.svg";
 import { getAutocompleteResults } from "../../api";
-import { useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { useRecoilState } from "recoil";
+import { islogin } from "../../atom";
 
 const Nav = styled(motion.nav)<{ $isScrolled: boolean }>`
   width: 100%;
@@ -119,52 +122,13 @@ const SearchBar = styled(motion.input)`
 
 const ProfileMenu = styled.div`
   display: flex;
-  cursor: pointer;
   align-items: center;
   gap: 15px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 16px;
-  color: #fff;
-  background: ${(props) => props.theme.blue.darker};
-  img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-  }
+  cursor: pointer;
 
   @media (max-width: 768px) {
     gap: 10px;
   }
-`;
-
-const TranslateButton = styled.button`
-  background: ${(props) => props.theme.blue.darker};
-  color: ${(props) => props.theme.white.lighter};
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-left: 10px;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: ${(props) => props.theme.blue.lighter};
-  }
-`;
-
-const SearchContainer = styled.div`
-  position: relative;
-  width: 300px;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 8px;
-  border: 1px solid ${(props) => props.theme.blue.darker};
-  border-radius: 4px;
-  outline: none;
 `;
 
 const SuggestionsList = styled.ul`
@@ -192,48 +156,169 @@ const SuggestionsList = styled.ul`
   }
 `;
 
-interface Form {
-  keyword: string;
-}
+const ProfileName = styled.span`
+  font-size: 16px;
+  color: ${(props) => props.theme.blue.darker};
+  transition: color 0.3s;
+
+  &:hover {
+    color: ${(props) => props.theme.blue.lighter};
+  }
+`;
+
+const AuthLinks = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const AuthLink = styled.span`
+  font-size: 16px;
+  color: ${(props) => props.theme.blue.darker};
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 const Header = () => {
+  const [, setIslogin] = useRecoilState(islogin);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [logged, setLogged] = useState(false);
   const homeMatch = useMatch("/");
-  const tvMatch = useMatch("/tv");
   const LoveMatch = useMatch("/love");
   const inputAnimation = useAnimation();
-  const { scrollY } = useScroll();
+  const { scrollY } = useScroll(); //스크롤 위치
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false); // 사용자 스크롤 여부
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
   const [suggestions, setSuggestions] = useState<any[]>([]); // 자동 완성 결과
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 디바운싱 타이머
   const clearSuggestionsTimeoutRef = useRef<NodeJS.Timeout | null>(null); // 10초 타이머
-  const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); //로그인 여부
+  const [username, setUsername] = useState(""); // 로그인 사용자
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1); // 추천 항목 포커스
 
+  // 메인 이동
+  const goToMain = () => {
+    navigate("/");
+  };
+
+  // 키보드 이벤트 핸들러
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!searchOpen && e.key === "Enter") {
+      // 검색창이 닫혀 있을 때 Enter 키로 검색창 열기
+      openSearch();
+      return;
+    }
+
+    // 검색창이 열려 있을 때 키보드 이벤트 처리
+    switch (e.key) {
+      case "ArrowDown":
+        // 아래 화살표로 추천 항목 순환
+        setHighlightedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case "ArrowUp":
+        // 위 화살표로 추천 항목 순환
+        setHighlightedIndex((prev) =>
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+        break;
+      case "Enter":
+        // Enter 키로 선택된 추천 항목 이동
+        if (highlightedIndex >= 0 && suggestions[highlightedIndex]) {
+          navigate(`/movies/${suggestions[highlightedIndex].id}`);
+          setSearchTerm("");
+          setSuggestions([]);
+          setSearchOpen(false);
+        }
+        break;
+      case "Escape":
+        // Esc 키로 검색창 닫기
+        setSearchOpen(false);
+        setSuggestions([]);
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedUsers = localStorage.getItem("users");
+      if (storedUsers) {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (Array.isArray(parsedUsers) && parsedUsers.length > 0) {
+          setIsLoggedIn(true);
+          setIslogin(true);
+          setUsername(parsedUsers[0].id);
+        }
+      } else {
+        setIsLoggedIn(false);
+        setIslogin(false);
+        setUsername("");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    handleStorageChange();
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [setIsLoggedIn, setIslogin, setUsername]);
+
+  //로그아웃
+  const handleLogout = () => {
+    localStorage.removeItem("users");
+
+    setIsLoggedIn(false);
+    setIslogin(false);
+    setUsername("");
+
+    window.dispatchEvent(new Event("user-logout"));
+
+    alert("로그아웃 되었습니다.");
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedUsers = localStorage.getItem("users");
+      if (storedUsers) {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (Array.isArray(parsedUsers) && parsedUsers.length > 0) {
+          setIsLoggedIn(true);
+          setIslogin(true);
+          setUsername(parsedUsers[0].id);
+        }
+      } else {
+        setIsLoggedIn(false);
+        setIslogin(false);
+        setUsername("");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    window.addEventListener("user-logout", handleStorageChange);
+
+    handleStorageChange();
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("user-logout", handleStorageChange);
+    };
+  }, [setIsLoggedIn, setIslogin, setUsername]);
+
+  //스크롤 위치에 따라 헤더 변경
   useEffect(() => {
     scrollY.on("change", () => {
       setIsScrolled(scrollY.get() > 60);
     });
   }, [scrollY]);
 
-  useEffect(() => {
-    // Login 페이지에서 넘어온 상태 확인
-    if (location.state?.logged) {
-      setLogged(true);
-    }
-  }, [location.state]);
-
-  const handleLogin = () => {
-    if (logged) {
-      setLogged(false); // 로그아웃 처리
-    } else {
-      navigate("/login", { state: { from: location.pathname } }); // 로그인 페이지로 이동
-    }
-  };
-
+  // 검색창 열기/ 닫기
   const openSearch = () => {
     if (searchOpen) {
       inputAnimation.start({ scaleX: 0 });
@@ -248,25 +333,7 @@ const Header = () => {
     }
   };
 
-  const goToMain = () => {
-    navigate("/");
-  };
-
-  const onValid = (data: { keyword: string }) => {
-    const trimmedKeyword = data.keyword.trim();
-    if (trimmedKeyword) {
-      setSearchParams({ keyword: trimmedKeyword }); // 쿼리 값 설정
-      navigate(`/search?keyword=${trimmedKeyword}`, { replace: true }); // 검색 페이지로 이동
-
-      setSearchTerm(""); // 검색어 초기화 (자동완성과 상관없이 초기화)
-      setSuggestions([]); // 추천 목록 닫기
-      if (clearSuggestionsTimeoutRef.current) {
-        clearTimeout(clearSuggestionsTimeoutRef.current); // 타이머 제거
-      }
-    }
-  };
-
-  // 검색어가 변경될 때 자동 완성 데이터s
+  // 검색어가 변경될 때 자동 완성 데이터
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!searchTerm.trim()) {
@@ -295,6 +362,7 @@ const Header = () => {
     };
   }, [searchTerm]);
 
+  // 검색 입력값 변경경
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -322,6 +390,7 @@ const Header = () => {
     }
   };
 
+  //검색창 제출
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.trim()) {
@@ -361,6 +430,12 @@ const Header = () => {
       <Col>
         <Search onSubmit={handleSearchSubmit}>
           <motion.svg
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                openSearch();
+              }
+            }}
             onClick={openSearch}
             animate={{ x: searchOpen ? -194 : 0 }}
             transition={{ type: "linear" }}
@@ -376,19 +451,41 @@ const Header = () => {
             initial={{ scaleX: 0 }}
             value={searchTerm}
             onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
           />
+
           {searchTerm && suggestions.length > 0 && (
             <SuggestionsList>
-              {suggestions.map((item) => (
-                <li key={item.id} onClick={() => handleSuggestionClick(item)}>
+              {suggestions.map((item, index) => (
+                <li
+                  key={item.id}
+                  onClick={() => handleSuggestionClick(item)} // 마우스 클릭 이벤트
+                  onMouseEnter={() => setHighlightedIndex(index)} // 마우스 호버 시 포커스
+                  style={{
+                    backgroundColor:
+                      highlightedIndex === index ? "#067FDA" : "transparent", // 선택된 항목의 배경색
+                    color: highlightedIndex === index ? "#fff" : "#ccc", // 선택된 항목의 글자색
+                  }}
+                >
                   {item.title || item.name || "Unknown"}
                 </li>
               ))}
             </SuggestionsList>
           )}
         </Search>
-        <ProfileMenu onClick={handleLogin}>
-          {logged ? "로그아웃" : "로그인"}
+        <ProfileMenu>
+          {isLoggedIn ? (
+            <>
+              <FontAwesomeIcon icon={faUser} />
+              <ProfileName onClick={handleLogout}>{username}님</ProfileName>
+            </>
+          ) : (
+            <AuthLinks>
+              <AuthLink onClick={() => navigate("/login")}>
+                로그인/회원가입
+              </AuthLink>
+            </AuthLinks>
+          )}
         </ProfileMenu>
       </Col>
     </Nav>

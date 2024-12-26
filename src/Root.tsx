@@ -6,7 +6,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import MobileHeader from "./components/MobileHeader";
 import Header from "./components/Main/Header";
-import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -33,8 +32,9 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: 'Pretendard-Regular';
-    background: ${(props) => props.theme.black.lighter};
+    background: ${(props) => props.theme.black.veryDark};
   }
+
 `;
 
 const MobileHeaderWrapper = styled.div`
@@ -55,21 +55,19 @@ const DesktopHeaderWrapper = styled.div`
 
 const App = () => {
   const location = useLocation();
-
-  const hideHeader = ["/login", "/join"].includes(location.pathname);
+  const hiddenRoutes = ["/login", "/join"];
+  const hideHeader = hiddenRoutes.includes(location.pathname);
 
   return (
-    <HelmetProvider>
+    <>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <Helmet>
-          <title>VivaPlay</title>
-        </Helmet>
         {!hideHeader && (
           <>
             <DesktopHeaderWrapper>
               <Header />
             </DesktopHeaderWrapper>
+
             <MobileHeaderWrapper>
               <MobileHeader />
             </MobileHeaderWrapper>
@@ -77,7 +75,7 @@ const App = () => {
         )}
         <Outlet />
       </ThemeProvider>
-    </HelmetProvider>
+    </>
   );
 };
 

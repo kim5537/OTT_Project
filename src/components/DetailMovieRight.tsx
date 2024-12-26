@@ -146,12 +146,12 @@ const DetailMovieRight = ({
   nowMovieId: number | undefined;
   reSize: boolean;
 }) => {
-  const [leaving, setLeaving] = useState(false);
+  const setLeaving = useState(false)[1];
   const [index, setIndex] = useState(0);
   const offset = 1;
 
   //영화 리뷰
-  const { data: reviews, isLoading: reviewsLoding } = useQuery({
+  const { data: reviews } = useQuery({
     queryKey: ["reviews", nowMovieId],
     queryFn: async () => {
       if (!nowMovieId) return { results: [] };
@@ -189,17 +189,14 @@ const DetailMovieRight = ({
   useEffect(() => {
     if (nowMovie) {
       const fetchCertifications = async () => {
-        const results: Record<number, string> = {};
-        const data = await getCertification(nowMovie.id);
-        const krRelease = data.results.find(
-          (release: any) => release.iso_3166_1 === "KR"
-        );
-        results[nowMovie.id] =
-          krRelease && krRelease.release_dates.length > 0
-            ? krRelease.release_dates[0].certification || "15"
-            : "15";
-        setCertifications(results);
+        const certificationData = await getCertification(nowMovie.id);
+
+        setCertifications((prev) => ({
+          ...prev,
+          [certificationData.id]: certificationData.certification,
+        }));
       };
+
       fetchCertifications();
     }
   }, [nowMovie]);
